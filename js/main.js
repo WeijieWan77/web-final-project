@@ -605,81 +605,261 @@
 
     var postId = getQueryParam('id');
     var post = postId ? DataStore.getPostById(postId) : null;
-    var container = qs('#postDetailContainer');
-    if (!container) return;
 
+    // =========== [新增代码开始] ===========
+    // 如果没有找到动态（或者刷新后数据丢了），自动造一条新的，并跳转过去
     if (!post) {
-      container.innerHTML = '<p>未找到该动态，可能已被删除。</p>';
+      console.log("检测到无数据，正在自动生成测试动态...");
+      var currentUser = Auth.getCurrentUser();
+      // 这里的 DataStore.addPost 会把数据存入 localStorage (如果你的 DataStore 支持的话)
+      // 即使不支持，它也会在当前页面生命周期内创建一条
+      var newPost = DataStore.addPost({
+        authorId: currentUser ? currentUser.id : 'user_1',
+        content: "这是一条自动生成的测试动态！\n用于测试详情页的左右分栏效果。\n无论你怎么刷新，我都会在这里。",
+        images: ["https://picsum.photos/800/800", "https://picsum.photos/600/800"], // 随机图
+        tags: ["测试", "自动生成", "UI调试"]
+      });
+      
+      // 强制跳转到这条新动态的 ID
+      window.location.href = 'detail.html?id=' + newPost.id;
+      return; 
+    }
+    // =========== [新增代码结束] ===========
+    
+    // 1. 处理找不到动态的情况 (适配新布局)
+    if (!post) {
+      var scrollArea = qs('#detailScrollArea');
+      if (scrollArea) {
+         scrollArea.innerHTML = '<div style="padding:40px;text-align:center;color:#999;">未找到该动态，可能已被删除。</div>';
+      }
       return;
     }
 
     var author = DataStore.getUserById(post.authorId);
-    container.innerHTML = Render.renderPostDetail(post, author);
-
     var currentUser = Auth.getCurrentUser();
-    
-    // 转发和收藏按钮
-    var repostBtn = qs('#repostBtn');
-    var favoriteBtn = qs('#favoriteBtn');
-    
-    if (repostBtn) {
-      repostBtn.addEventListener('click', function () {
-        if (!Auth.isLoggedIn()) {
-          window.alert('请先登录后再转发动态');
-          window.location.href = 'login.html';
-          return;
-        }
-        var originalContentEl = qs('#repostOriginalContent');
-        if (originalContentEl) {
-          originalContentEl.innerHTML = 
-            '<div class="repost-original__header">' +
-            '<img src="' + Render.escapeHTML(author.avatar || '') + '" alt="头像" class="repost-original__avatar" />' +
-            '<span class="repost-original__author">' + Render.escapeHTML(author.nickname || '未知用户') + '</span>' +
-            '</div>' +
-            '<div class="repost-original__content">' + Render.escapeHTML(post.content || '') + '</div>';
-        }
-        qs('#repostContentInput').value = '';
-        qs('#repostForm').setAttribute('data-original-post-id', post.id);
-        openModal('repostModal');
-      });
+
+    // 2. 调用新版 Render 函数渲染四个区域
+    // 对应 detail.html 中的四个 ID 容器
+    if (Render.setHTMLById) {
+        Render.setHTMLById('detailMedia', Render.renderDetailMedia(post));
+        Render.setHTMLById('detailHeader', Render.renderDetailHeader(author, currentUser));
+        Render.setHTMLById('detailContent', Render.renderDetailContent(post));
+        Render.setHTMLById('detailActions', Render.renderDetailActions(post, currentUser));
     }
-    
-    if (favoriteBtn) {
-      var isFavorited = currentUser && DataStore.isFavorite(currentUser.id, post.id);
-      if (isFavorited) {
-        favoriteBtn.textContent = '⭐ 已收藏';
-        favoriteBtn.classList.add('is-favorited');
+    // =========== [新增代码开始：鼠标拖拽与按钮控制] ===========
+    const carousel = qs('#detailMediaCarousel');
+    const indicators = qsa('.indicator-dot');
+    const prevBtn = qs('#carouselPrevBtn');
+    const nextBtn = qs('#carouselNextBtn');
+
+    if (carousel && indicators.length > 0) {
+      
+      // --- A. 鼠标拖拽逻辑 (Drag to Scroll) ---
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      carousel.addEventListener('mousedown', (e) => {
+        isDown = true;
+        carousel.classList.add('is-dragging'); // 改变鼠标样式
+        startX = e.pageX - carousel.offsetLeft;
+        scrollLeft = carousel.scrollLeft;
+      });
+
+      carousel.addEventListener('mouseleave', () => {
+        isDown = false;
+        carousel.classList.remove('is-dragging');
+      });
+
+      carousel.addEventListener('mouseup', () => {
+        isDown = false;
+        carousel.classList.remove('is-dragging');
+        // 拖拽结束后，让 CSS scroll-snap 自动吸附到最近的一张
+      });
+
+      carousel.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault(); // 防止选中文字或图片
+        const x = e.pageX - carousel.offsetLeft;
+        const walk = (x - startX) * 2; // *2 是为了让滑动更灵敏
+        carousel.scrollLeft = scrollLeft - walk;
+      });
+
+      // --- B. 按钮点击切换逻辑 ---
+      const itemWidth = carousel.offsetWidth; // 获取容器宽度（即一张图的宽）
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          carousel.scrollBy({ left: -itemWidth, behavior: 'smooth' });
+        });
       }
-      favoriteBtn.addEventListener('click', function () {
-        if (!Auth.isLoggedIn()) {
-          window.alert('请先登录后再收藏动态');
-          window.location.href = 'login.html';
-          return;
-        }
-        var user = Auth.getCurrentUser();
-        var isFavoritedNow = DataStore.toggleFavorite(user.id, post.id);
-        if (isFavoritedNow) {
-          favoriteBtn.textContent = '⭐ 已收藏';
-          favoriteBtn.classList.add('is-favorited');
-        } else {
-          favoriteBtn.textContent = '☆ 收藏';
-          favoriteBtn.classList.remove('is-favorited');
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          carousel.scrollBy({ left: itemWidth, behavior: 'smooth' });
+        });
+      }
+
+      // --- C. 滚动监听更新指示器 (保持之前的逻辑，稍微优化) ---
+      carousel.addEventListener('scroll', () => {
+        // 使用防抖或简单的计算
+        const currentScroll = carousel.scrollLeft;
+        const index = Math.round(currentScroll / carousel.offsetWidth);
+        
+        indicators.forEach((dot, idx) => {
+          dot.classList.toggle('active', idx === index);
+        });
+      }, { passive: true });
+    }
+    // =========== [新增代码结束] ===========
+    
+
+    // 3. 绑定底部操作栏事件 (使用事件委托)
+    // 因为 Like/Favorite/Repost 按钮是动态渲染的，没有固定ID，所以监听父容器 #detailActions
+    var actionsContainer = qs('#detailActions');
+    if (actionsContainer) {
+      actionsContainer.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+
+        if (action === 'like') {
+           if (!Auth.isLoggedIn()) {
+             window.alert('请先登录');
+             return;
+           }
+           var updated = DataStore.toggleLike(post.id, 1);
+           if (updated) {
+             btn.classList.toggle('is-active'); // 切换红色爱心样式
+           }
+        } 
+        else if (action === 'favorite') {
+           if (!Auth.isLoggedIn()) {
+             window.alert('请先登录');
+             return;
+           }
+           var isFav = DataStore.toggleFavorite(Auth.getCurrentUser().id, post.id);
+           btn.classList.toggle('is-starred', isFav); // 切换黄色星星样式
+        } 
+        else if (action === 'repost') {
+           if (!Auth.isLoggedIn()) {
+             window.alert('请先登录');
+             return;
+           }
+           // 填充并打开转发模态框 (复用原有逻辑)
+           var originalContentEl = qs('#repostOriginalContent');
+           if (originalContentEl) {
+             originalContentEl.innerHTML = 
+               '<div class="repost-original__header">' +
+               '<img src="' + Render.escapeHTML(author.avatar || '') + '" alt="头像" class="repost-original__avatar" />' +
+               '<span class="repost-original__author">' + Render.escapeHTML(author.nickname || '未知用户') + '</span>' +
+               '</div>' +
+               '<div class="repost-original__content">' + Render.escapeHTML(post.content || '') + '</div>';
+           }
+           qs('#repostContentInput').value = '';
+           qs('#repostForm').setAttribute('data-original-post-id', post.id);
+           openModal('repostModal');
         }
       });
     }
-    
-    // 转发表单处理
-    var repostForm = qs('#repostForm');
-    if (repostForm) {
-      repostForm.addEventListener('submit', function (e) {
+
+    // 4. 评论区逻辑 (复用原有逻辑，ID 保持为 #commentList)
+    function refreshComments() {
+      var comments = DataStore.getCommentsByPostId(post.id);
+      var users = DataStore.getUsers();
+      var listEl = qs('#commentList');
+      if (listEl) {
+        listEl.innerHTML = Render.renderCommentList(comments, users);
+      }
+    }
+    refreshComments();
+
+    // 评论表单提交
+    var commentForm = qs('#commentForm');
+    if (commentForm) {
+      commentForm.addEventListener('submit', function (e) {
         e.preventDefault();
         var user = Auth.getCurrentUser();
         if (!user) {
-          window.alert('请先登录');
-          window.location.href = 'login.html';
-          return;
+           window.alert('请先登录再发表评论');
+           // window.location.href = 'login.html'; // 可选：跳转登录
+           return;
         }
-        var originalPostId = repostForm.getAttribute('data-original-post-id');
+        var content = qs('#commentContentInput').value.trim();
+        if (!content) {
+           window.alert('评论内容不能为空');
+           return;
+        }
+        DataStore.addComment({ postId: post.id, userId: user.id, content: content });
+        DataStore.updateUserLastActiveTime(user.id);
+        
+        // 清空输入框并刷新
+        qs('#commentContentInput').value = '';
+        refreshComments();
+        
+        // 体验优化：发布后自动滚动到评论区底部
+        var scrollArea = qs('#detailScrollArea');
+        if(scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
+      });
+    }
+
+    // 5. Emoji 表情功能 (增强版)
+    var emojiPicker = qs('#emojiPicker');
+    var emojiBtn = qs('#emojiToggleBtn');
+
+    if (emojiPicker && emojiBtn) {
+       var emojis = ['😀', '😂', '🥰', '👍', '👏', '🤔', '😭', '🔥'];
+       emojiPicker.innerHTML = Render.renderEmojiPicker(emojis);
+
+       // 1. 点击表情：输入并关闭
+       emojiPicker.addEventListener('click', function(e){
+          var btn = e.target.closest('.emoji-picker__item');
+          if(!btn) return;
+          var emoji = btn.getAttribute('data-emoji');
+          var input = qs('#commentContentInput');
+          if(input) {
+            input.value += emoji;
+            input.focus();
+            // 选完表情后自动关闭，体验更好
+            emojiPicker.setAttribute('hidden', 'hidden'); 
+          }
+       });
+
+       // 2. 点击按钮：切换开关
+       emojiBtn.addEventListener('click', function(e){
+          // 阻止冒泡，防止触发下面的 document 点击事件
+          e.stopPropagation(); 
+          var hidden = emojiPicker.hasAttribute('hidden');
+          if(hidden) emojiPicker.removeAttribute('hidden');
+          else emojiPicker.setAttribute('hidden', 'hidden');
+       });
+
+       // 3. [新增] 点击页面空白处：自动关闭
+       document.addEventListener('click', function(e) {
+          // 如果点击的不是表情框内部，也不是表情按钮，就关掉它
+          if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+             emojiPicker.setAttribute('hidden', 'hidden');
+          }
+       });
+       
+       // 防止点击表情框本身时把自己关掉
+       emojiPicker.addEventListener('click', function(e){
+           e.stopPropagation();
+       });
+    }
+
+    // 6. 模态框内的转发表单提交逻辑 (复用)
+    var repostForm = qs('#repostForm');
+    if (repostForm) {
+      // 移除可能重复绑定的监听器 (虽然 initDetailPage 只跑一次，但为了保险)
+      var newRepostForm = repostForm.cloneNode(true);
+      repostForm.parentNode.replaceChild(newRepostForm, repostForm);
+      
+      newRepostForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var user = Auth.getCurrentUser();
+        if (!user) return;
+        var originalPostId = newRepostForm.getAttribute('data-original-post-id');
         if (!originalPostId) return;
         var content = qs('#repostContentInput').value.trim();
         var result = DataStore.addRepost(user.id, originalPostId, content);
@@ -689,119 +869,6 @@
           window.alert('转发成功！');
           window.location.href = 'index.html';
         }
-      });
-    }
-    
-    var ownerActions = qs('#postOwnerActions');
-    if (ownerActions && currentUser && currentUser.id === post.authorId) {
-      ownerActions.hidden = false;
-      var editBtn = qs('#editPostBtn');
-      var deleteBtn = qs('#deletePostBtn');
-
-      if (editBtn) {
-        editBtn.addEventListener('click', function () {
-          var contentInput = qs('#editPostContentInput');
-          var imagesInput = qs('#editPostImagesInput');
-          if (contentInput) contentInput.value = post.content || '';
-          if (imagesInput) imagesInput.value = (post.images || []).join('\n');
-          openModal('editPostModal');
-        });
-      }
-
-      if (deleteBtn) {
-        deleteBtn.addEventListener('click', function () {
-          if (window.confirm('确定要删除这条动态吗？删除后不可恢复。')) {
-            DataStore.deletePost(post.id);
-            window.location.href = 'index.html';
-          }
-        });
-      }
-
-      var editForm = qs('#editPostForm');
-      if (editForm) {
-        editForm.addEventListener('submit', function (e) {
-          e.preventDefault();
-          var newContent = qs('#editPostContentInput').value.trim();
-          var newImagesRaw = qs('#editPostImagesInput').value;
-          if (!newContent) {
-            window.alert('内容不能为空');
-            return;
-          }
-          var newImages = newImagesRaw
-            .split(/\n|,/)
-            .map(function (s) {
-              return s.trim();
-            })
-            .filter(Boolean);
-          post = DataStore.updatePost(post.id, { content: newContent, images: newImages });
-          container.innerHTML = Render.renderPostDetail(post, author);
-          closeModal('editPostModal');
-        });
-      }
-    }
-
-    var emojiPicker = qs('#emojiPicker');
-    if (emojiPicker) {
-      var emojis = ['😀', '😂', '🥰', '👍', '👏', '🤔', '😭', '🔥'];
-      emojiPicker.innerHTML = Render.renderEmojiPicker(emojis);
-      emojiPicker.addEventListener('click', function (e) {
-        var btn = e.target.closest('.emoji-picker__item');
-        if (!btn) return;
-        var emoji = btn.getAttribute('data-emoji');
-        var textarea = qs('#commentContentInput');
-        if (textarea) {
-          textarea.value += emoji;
-          textarea.focus();
-        }
-      });
-    }
-
-    var emojiToggleBtn = qs('#emojiToggleBtn');
-    if (emojiToggleBtn && emojiPicker) {
-      emojiToggleBtn.addEventListener('click', function () {
-        var hidden = emojiPicker.hasAttribute('hidden');
-        if (hidden) {
-          emojiPicker.removeAttribute('hidden');
-        } else {
-          emojiPicker.setAttribute('hidden', 'hidden');
-        }
-      });
-    }
-
-    function refreshComments() {
-      var comments = DataStore.getCommentsByPostId(post.id);
-      var users = DataStore.getUsers();
-      var listEl = qs('#commentList');
-      if (!listEl) return;
-      listEl.innerHTML = Render.renderCommentList(comments, users);
-    }
-
-    refreshComments();
-
-    var commentForm = qs('#commentForm');
-    if (commentForm) {
-      commentForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var user = Auth.getCurrentUser();
-        if (!user) {
-          window.alert('请先登录再发表评论');
-          window.location.href = 'login.html';
-          return;
-        }
-        var content = qs('#commentContentInput').value.trim();
-        if (!content) {
-          window.alert('评论内容不能为空');
-          return;
-        }
-        DataStore.addComment({
-          postId: post.id,
-          userId: user.id,
-          content: content,
-        });
-        // 更新用户活跃时间
-        DataStore.updateUserLastActiveTime(user.id);
-        qs('#commentContentInput').value = '';
-        refreshComments();
       });
     }
   }

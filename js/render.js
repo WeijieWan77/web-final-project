@@ -4,6 +4,8 @@
 (function (window, DataStore) {
   if (!DataStore) return;
 
+  // --- 基础辅助函数 ---
+
   function escapeHTML(str) {
     if (str == null) return '';
     return String(str)
@@ -33,6 +35,82 @@
       String(date.getDate()).padStart(2, '0')
     );
   }
+
+  // --- 新增：详情页专用渲染函数 ---
+
+
+  function renderDetailMedia(post) {
+    const images = Array.isArray(post.images) ? post.images : [];
+    if (images.length === 0) {
+      return '<div class="detail-media-empty">无图片内容</div>';
+    }
+
+    // 1. 构建轮播图容器
+    let html = '<div class="detail-media-carousel" id="detailMediaCarousel">';
+    images.forEach((url, index) => {
+      html += `<div class="carousel-item">
+                 <img src="${escapeHTML(url)}" alt="动态图片 ${index + 1}" class="carousel-img">
+                 <div class="carousel-image-blur" style="background-image: url('${escapeHTML(url)}')"></div>
+               </div>`;
+    });
+    html += '</div>';
+
+    // 2. 构建指示器和切换按钮（只有多张图时才显示）
+    if (images.length > 1) {
+      // 指示器
+      html += '<div class="carousel-indicators" id="carouselIndicators">';
+      images.forEach((_, index) => {
+        html += `<span class="indicator-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></span>`;
+      });
+      html += '</div>';
+
+      // --- [新增] 左右切换按钮 ---
+      html += `
+        <button class="carousel-control prev" id="carouselPrevBtn" aria-label="上一张">❮</button>
+        <button class="carousel-control next" id="carouselNextBtn" aria-label="下一张">❯</button>
+      `;
+    }
+
+    return html;
+  }
+
+  function renderDetailHeader(author) {
+     return '<div class="detail-user-card">' +
+            '<a href="profile.html?userId=' + escapeHTML(author.id) + '">' +
+            '<img src="' + escapeHTML(author.avatar) + '" class="detail-user-avatar">' +
+            '</a>' +
+            '<div class="detail-user-info">' +
+            '<a href="profile.html?userId=' + escapeHTML(author.id) + '" class="detail-user-name">' + escapeHTML(author.nickname) + '</a>' +
+            '<span class="detail-location">深圳大学</span>' +
+            '</div>' +
+            '</div>' +
+            '<button class="btn-follow">关注</button>';
+  }
+
+  function renderDetailContent(post) {
+    var tagsHtml = '';
+    if (post.tags && post.tags.length) {
+        tagsHtml = '<div class="post-card__tags" style="margin-top:8px;">' +
+        post.tags.map(function(t){ return '<span class="tag">#'+escapeHTML(t)+'</span>'; }).join('') +
+        '</div>';
+    }
+    return '<div style="margin-bottom:8px;">' + escapeHTML(post.content).replace(/\n/g, '<br>') + '</div>' + 
+           tagsHtml + 
+           '<div style="font-size:12px; color:#999; margin-top:12px;">' + formatTimeAgo(post.timestamp) + '</div>';
+  }
+
+  function renderDetailActions(post, currentUser) {
+    var isLiked = false; // 此处需对接真实数据
+    var isFavorited = currentUser && DataStore.isFavorite(currentUser.id, post.id);
+    return '<div class="detail-actions-left">' +
+           '<button class="action-icon-btn ' + (isLiked ? 'is-active' : '') + '" data-action="like">❤</button>' +
+           '<button class="action-icon-btn" onclick="document.getElementById(\'commentContentInput\').focus()">💬</button>' +
+           '<button class="action-icon-btn" data-action="repost">🔁</button>' +
+           '</div>' +
+           '<button class="action-icon-btn ' + (isFavorited ? 'is-starred' : '') + '" data-action="favorite">⭐</button>';
+  }
+
+  // --- 原有组件渲染函数 ---
 
   function buildImagesGrid(post) {
     const images = Array.isArray(post.images) ? post.images : [];
@@ -67,13 +145,13 @@
     );
   }
 
+  // !!! 修改后的 renderPostCard：添加了点击跳转逻辑 !!!
   function renderPostCard(post, author, currentUser) {
     author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: '' };
-    var isLiked = false; // 点赞状态可以在将来扩展为 per-user，这里暂用样式占位
+    var isLiked = false; 
     var isFavorited = currentUser && DataStore.isFavorite(currentUser.id, post.id);
     var repostCount = DataStore.getRepostCount(post.id);
     
-    // 如果是转发动态，显示原动态信息
     var repostInfo = '';
     if (post.isRepost && post.repostedFrom) {
       var originalPost = DataStore.getPostById(post.repostedFrom);
@@ -86,49 +164,70 @@
       }
     }
 
+    // 生成详情页链接
+    var detailUrl = 'detail.html?id=' + escapeHTML(post.id);
+
     return (
-      '<article class="card post-card' + (post.isRepost ? ' post-card--repost' : '') + '" data-post-id="' +
-      escapeHTML(post.id) +
-      '">' +
+      '<article class="card post-card' + (post.isRepost ? ' post-card--repost' : '') + '" data-post-id="' + escapeHTML(post.id) + '">' +
+      
+      // 头部
       '<header class="post-card__meta">' +
-      '<a class="post-card__avatar" href="profile.html?userId=' +
-      escapeHTML(author.id || '') +
-      '">' +
+      '<a class="post-card__avatar" href="profile.html?userId=' + escapeHTML(author.id || '') + '" onclick="event.stopPropagation()">' +
       '<img src="' + escapeHTML(author.avatar || '') + '" alt="头像" />' +
       '</a>' +
-      '<div class="post-card__info">' +
+      '<div class="post-card__info" onclick="location.href=\'' + detailUrl + '\'" style="cursor:pointer;">' +
       '<div class="post-card__author">' + escapeHTML(author.nickname || '未知用户') + '</div>' +
       '<div class="post-card__time">' + formatTimeAgo(post.timestamp) + '</div>' +
       '</div>' +
       '</header>' +
+      
       repostInfo +
-      '<div class="post-card__content" data-role="post-content" data-full="0">' +
+      
+      // 内容区域（点击跳转）
+      '<div class="post-card__content" onclick="location.href=\'' + detailUrl + '\'" style="cursor:pointer;" data-role="post-content" data-full="0">' +
       escapeHTML(post.content) +
       '</div>' +
+      
+      // 图片区域（点击跳转）
+      '<div onclick="location.href=\'' + detailUrl + '\'" style="cursor:pointer;">' +
       buildImagesGrid(post) +
+      '</div>' +
+      
       renderPostTags(post.tags) +
+      
+      // 底部操作栏
       '<footer class="post-card__footer">' +
       '<div class="post-card__actions">' +
+      
+      // 点赞（阻止冒泡，不跳转）
       '<button type="button" class="post-card__action post-card__action--like' +
       (isLiked ? ' is-liked' : '') +
       '" data-action="like" aria-label="点赞">' +
       '<span>❤</span><span>' + (post.likes || 0) + '</span>' +
       '</button>' +
-      '<button type="button" class="post-card__action" data-action="comment" aria-label="评论">' +
+      
+      // 评论（点击跳转）
+      '<button type="button" class="post-card__action" onclick="location.href=\'' + detailUrl + '\'" aria-label="评论">' +
       '<span>💬</span><span>评论</span>' +
       '</button>' +
+      
+      // 转发
       '<button type="button" class="post-card__action post-card__action--repost' +
       (post.isRepost ? ' is-reposted' : '') +
       '" data-action="repost" aria-label="转发">' +
       '<span>🔁</span><span>' + repostCount + '</span>' +
       '</button>' +
+      
+      // 收藏
       '<button type="button" class="post-card__action post-card__action--favorite' +
       (isFavorited ? ' is-favorited' : '') +
       '" data-action="favorite" aria-label="收藏">' +
       '<span>' + (isFavorited ? '⭐' : '☆') + '</span><span>收藏</span>' +
       '</button>' +
       '</div>' +
-      '<button type="button" class="link-button" data-action="open-detail">查看详情 &gt;</button>' +
+      
+      // 查看详情链接
+      '<a href="' + detailUrl + '" class="link-button">查看详情 &gt;</a>' +
       '</footer>' +
       '</article>'
     );
@@ -227,9 +326,9 @@
   }
 
   function renderPostDetail(post, author) {
+    // 兼容旧逻辑，防止报错
     author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: '' };
     
-    // 如果是转发动态，显示原动态信息
     var repostInfo = '';
     var originalContent = '';
     if (post.isRepost && post.repostedFrom) {
@@ -241,7 +340,6 @@
                      '<a href="profile.html?userId=' + escapeHTML(originalAuthor.id || '') + '" class="post-card__repost-author">' + 
                      escapeHTML(originalAuthor.nickname) + '</a>' +
                      '</div>';
-        // 显示原动态的完整内容
         originalContent = 
           '<div class="post-card--repost post-card" style="margin-top: 12px; padding: 12px; background-color: var(--color-surface-soft); border-radius: var(--radius-md);">' +
           '<header class="post-card__meta">' +
@@ -299,22 +397,27 @@
     if (el) el.innerHTML = html;
   }
 
+  // --- 导出全局对象 ---
+
   window.Render = {
     escapeHTML: escapeHTML,
     formatTimeAgo: formatTimeAgo,
-    // 动态
     renderPostCard: renderPostCard,
     renderPostList: renderPostList,
-    renderPostDetail: renderPostDetail,
-    // 评论
+    
+    // 详情页新函数 (已正确包含在作用域内)
+    renderDetailMedia: renderDetailMedia,
+    renderDetailHeader: renderDetailHeader,
+    renderDetailContent: renderDetailContent,
+    renderDetailActions: renderDetailActions,
+    
     renderCommentItem: renderCommentItem,
     renderCommentList: renderCommentList,
-    // 侧边栏
     renderHotTopics: renderHotTopics,
     renderActiveUsersList: renderActiveUsersList,
-    // Emoji
+    renderPostDetail: renderPostDetail, // 兼容导出
     renderEmojiPicker: renderEmojiPicker,
-    // DOM helper
     setHTMLById: setHTMLById,
   };
+
 })(window, window.DataStore);
