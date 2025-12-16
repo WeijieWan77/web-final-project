@@ -35,24 +35,54 @@
   </header>
 
   <main class="main main--groups">
-    <div class="groups-header">
-      <h1>我的群组</h1>
-      <button type="button" id="createGroupBtn" class="btn-primary" data-auth-visible="user">创建群组</button>
-    </div>
+    <!-- 顶部 Hero Banner：百团大战氛围 -->
+    <section class="groups-hero" aria-labelledby="groupsHeroTitle">
+      <div class="groups-hero__bg"></div>
+      <div class="groups-hero__content">
+        <h1 id="groupsHeroTitle" class="groups-hero__title">寻找你的组织，发现志同道合的伙伴</h1>
+        <p class="groups-hero__subtitle">学习、运动、音乐、游戏……总有一个角落在等你加入。</p>
+        <div class="groups-hero__actions">
+          <button type="button" id="createGroupBtn" class="btn-primary" data-auth-visible="user">✨ 创建社团</button>
+          <div class="input-pill-wrapper groups-hero__search">
+            <span>🔍</span>
+            <input
+              type="search"
+              id="groupSearchInput"
+              placeholder="搜索 吉他社、篮球队、摄影协会..."
+              aria-label="搜索群组"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <nav class="tabs" aria-label="群组筛选">
-      <button type="button" class="tab is-active" data-groups-tab="my">我的群组</button>
-      <button type="button" class="tab" data-groups-tab="all">全部群组</button>
-    </nav>
+    <!-- 顶部筛选栏：我的/全部 + 分类 pills -->
+    <section class="groups-filter-section" aria-label="群组筛选">
+      <nav class="tabs tabs--pill groups-tabs" aria-label="我的/全部群组切换">
+        <button type="button" class="tab is-active" data-groups-tab="my">我的群组</button>
+        <button type="button" class="tab" data-groups-tab="all">全部群组</button>
+      </nav>
+      <div class="groups-filter-bar" aria-label="群组分类筛选">
+        <button type="button" class="groups-filter-pill is-active" data-group-category="all">全部</button>
+        <button type="button" class="groups-filter-pill" data-group-category="academic">学术</button>
+        <button type="button" class="groups-filter-pill" data-group-category="sports">运动</button>
+        <button type="button" class="groups-filter-pill" data-group-category="arts">艺术</button>
+        <button type="button" class="groups-filter-pill" data-group-category="games">游戏</button>
+        <button type="button" class="groups-filter-pill" data-group-category="life">生活</button>
+      </div>
+    </section>
 
-    <div id="groupsContainer" class="groups-grid">
-      <!-- JS 渲染群组列表 -->
-    </div>
+    <!-- 核心区域：社团卡片网格 -->
+    <section aria-label="社团列表">
+      <div id="groupsContainer" class="groups-grid">
+        <!-- JS 渲染群组卡片 -->
+      </div>
 
-    <div id="groupsEmpty" class="groups-empty" hidden>
-      <p>还没有加入任何群组</p>
-      <p class="groups-empty__hint">创建或加入群组，和志同道合的同学一起交流吧！</p>
-    </div>
+      <div id="groupsEmpty" class="groups-empty" hidden>
+        <p>这里还空空如也</p>
+        <p class="groups-empty__hint">可以创建一个新社团，或者切换到“全部群组”看看。</p>
+      </div>
+    </section>
   </main>
 
   <!-- 创建群组模态框 -->

@@ -45,14 +45,14 @@
   </header>
 
   <main class="main main--profile" aria-label="个人主页">
-    <!-- 顶部背景 + 头像区 -->
-    <section class="profile-hero">
+    <!-- 顶部：沉浸式个人形象区 (Hero Section) -->
+    <section class="profile-hero" id="profileHero">
       <div class="profile-hero__cover" id="profileCover"></div>
-      <div class="profile-hero__info">
+      <div class="profile-hero__card">
         <div class="profile-hero__avatar-wrapper">
-          <img src="" alt="头像" id="profileAvatar" class="profile-avatar" />
+          <img src="" alt="用户头像" id="profileAvatar" class="profile-avatar" />
         </div>
-        <div class="profile-hero__meta">
+        <div class="profile-hero__summary">
           <h1 id="profileNickname" class="profile-nickname"></h1>
           <p id="profileBio" class="profile-bio"></p>
           <div id="profileTags" class="profile-tags">
@@ -60,79 +60,59 @@
           </div>
         </div>
         <div class="profile-hero__actions">
-          <button type="button" id="editProfileBtn" class="btn-secondary" data-profile-self="true">编辑资料</button>
-          <button type="button" id="followToggleBtn" class="btn-primary" data-profile-self="false">关注</button>
-          <button type="button" id="messageBtn" class="btn-secondary" data-profile-self="false">💬 私信</button>
+          <!-- JS 渲染操作按钮 (编辑资料/关注/私信/退出登录) -->
         </div>
-      </div>
-      <div class="profile-hero__stats">
-        <div class="profile-stat">
-          <span class="profile-stat__value" id="profileFollowersCount">0</span>
-          <span class="profile-stat__label">粉丝</span>
-        </div>
-        <div class="profile-stat">
-          <span class="profile-stat__value" id="profileFollowingCount">0</span>
-          <span class="profile-stat__label">关注</span>
-        </div>
-        <div class="profile-stat">
-          <span class="profile-stat__value" id="profileLikesCount">0</span>
-          <span class="profile-stat__label">获赞</span>
-        </div>
-        <div class="profile-stat">
-          <span class="profile-stat__value" id="profileVisitCount">0</span>
-          <span class="profile-stat__label">访问量</span>
+        <div class="profile-hero__stats">
+          <div class="profile-stat" id="statFollowing">
+            <span class="profile-stat__value" id="profileFollowingCount">0</span>
+            <span class="profile-stat__label">关注</span>
+          </div>
+          <div class="profile-stat" id="statFollowers">
+            <span class="profile-stat__value" id="profileFollowersCount">0</span>
+            <span class="profile-stat__label">粉丝</span>
+          </div>
+          <div class="profile-stat" id="statLikes">
+            <span class="profile-stat__value" id="profileLikesCount">0</span>
+            <span class="profile-stat__label">获赞</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 个性化信息：活跃时间、相册墙 -->
-    <section class="profile-personal" aria-label="个性化信息">
-      <div class="profile-personal__item">
-        <span class="profile-personal__label">最近活跃：</span>
-        <span class="profile-personal__value" id="profileLastActive">--</span>
-      </div>
-      <div class="profile-personal__gallery">
-        <h3 class="profile-personal__gallery-title">相册墙</h3>
-        <div class="profile-personal__gallery-grid" id="profileGalleryGrid">
-          <!-- JS 渲染相册图片 -->
-        </div>
-        <p class="profile-personal__gallery-empty" id="profileGalleryEmpty" hidden>还没有发布过图片动态</p>
-      </div>
-    </section>
-
-    <!-- 资料完善度 / 活跃度进度条 -->
-    <section class="profile-metrics" aria-label="数据统计">
-      <div class="metric">
-        <div class="metric__header">
-          <span class="metric__title">资料完善度</span>
-          <span class="metric__value" id="profileCompletionLabel">0%</span>
-        </div>
-        <div class="metric__bar">
-          <div class="metric__bar-fill" id="profileCompletionBar"></div>
-        </div>
-      </div>
-      <div class="metric">
-        <div class="metric__header">
-          <span class="metric__title">活跃度</span>
-          <span class="metric__value" id="profileActivityLabel">0%</span>
-        </div>
-        <div class="metric__bar">
-          <div class="metric__bar-fill" id="profileActivityBar"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 动态 / 收藏 Tabs -->
+    <!-- 中部：Tab 切换导航 (Tabs) 与内容区 -->
     <section class="profile-content">
-      <nav class="tabs" aria-label="个人内容切换">
+      <nav class="tabs tabs--pill" aria-label="个人内容切换">
         <button type="button" class="tab is-active" data-profile-tab="posts">我的动态</button>
-        <button type="button" class="tab" data-profile-tab="favorites">我的收藏</button>
+        <button type="button" class="tab" data-profile-tab="favorites" data-profile-self-only="true">我的收藏</button>
+        <button type="button" class="tab" data-profile-tab="photos">我的相册</button>
+        <button type="button" class="tab" data-profile-tab="about">个人资料</button>
       </nav>
+
       <div class="profile-content__panel" id="profilePostsContainer" data-profile-panel="posts">
-        <!-- JS 渲染用户动态 -->
+        <!-- JS 渲染用户动态，复用瀑布流样式 -->
       </div>
       <div class="profile-content__panel" id="profileFavoritesContainer" data-profile-panel="favorites" hidden>
-        <!-- JS 渲染收藏动态 -->
+        <!-- JS 渲染收藏动态，仅自己可见，复用瀑布流样式 -->
+      </div>
+      <div class="profile-content__panel" id="profilePhotosContainer" data-profile-panel="photos" hidden>
+        <!-- JS 渲染相册图片，瀑布流 -->
+        <div class="masonry-grid" id="profilePhotosGrid"></div>
+        <p class="empty-state" id="profilePhotosEmpty" hidden>还没有发布过图片动态哦。</p>
+      </div>
+      <div class="profile-content__panel" id="profileAboutContainer" data-profile-panel="about" hidden>
+        <!-- JS 渲染个人详细资料 -->
+        <div class="profile-about-card card">
+          <p><strong>学号:</strong> <span id="aboutStudentId"></span></p>
+          <p><strong>昵称:</strong> <span id="aboutNickname"></span></p>
+          <p><strong>签名:</strong> <span id="aboutBio"></span></p>
+          <p><strong>兴趣:</strong> <span id="aboutTags"></span></p>
+          <p><strong>注册时间:</strong> <span id="aboutJoinDate"></span></p>
+          <p><strong>最近活跃:</strong> <span id="aboutLastActive"></span></p>
+          <p><strong>角色:</strong> <span id="aboutRole"></span></p>
+          <p><strong>关注数:</strong> <span id="aboutFollowingCount"></span></p>
+          <p><strong>粉丝数:</strong> <span id="aboutFollowersCount"></span></p>
+          <p><strong>获赞数:</strong> <span id="aboutLikesCount"></span></p>
+        </div>
       </div>
     </section>
   </main>

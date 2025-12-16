@@ -32,31 +32,59 @@
     }
   }
 
+  // 根据群组名称/简介粗略推断类别（如果后续扩展到数据层可直接使用 group.category）
+  function getGroupCategory(group) {
+    if (group.category) return group.category;
+    var text = (group.name + ' ' + (group.description || '')).toLowerCase();
+    if (/[考研|学习|学术|实验|竞赛]/.test(text)) return 'academic';
+    if (/[跑步|篮球|足球|羽毛球|运动]/.test(text)) return 'sports';
+    if (/[音乐|吉他|舞蹈|话剧|艺术|绘画]/.test(text)) return 'arts';
+    if (/[游戏|开黑|电竞|桌游]/.test(text)) return 'games';
+    if (/[生活|美食|摄影|日常|兴趣]/.test(text)) return 'life';
+    return 'other';
+  }
+
   function renderGroupCard(group, currentUser) {
     var isMember = currentUser && group.members.indexOf(currentUser.id) !== -1;
     var membersCount = group.members.length;
     var creator = DataStore.getUserById(group.creatorId);
+    var category = getGroupCategory(group);
+
+    var coverClass = 'group-card__cover';
+    if (category === 'academic') coverClass += ' group-card__cover--academic';
+    else if (category === 'sports') coverClass += ' group-card__cover--sports';
+    else if (category === 'arts') coverClass += ' group-card__cover--arts';
+    else if (category === 'games') coverClass += ' group-card__cover--games';
+    else if (category === 'life') coverClass += ' group-card__cover--life';
     
+    var actionHtml;
+    if (isMember) {
+      actionHtml =
+        '<button type="button" class="btn-secondary group-card__btn group-card__btn--ghost" data-action="leave">退出</button>' +
+        '<button type="button" class="btn-primary group-card__btn group-card__btn--primary" data-action="view">进入</button>';
+    } else {
+      actionHtml =
+        '<button type="button" class="btn-primary group-card__btn group-card__btn--primary" data-action="join">加入</button>';
+    }
+
     return (
-      '<div class="group-card" data-group-id="' + Render.escapeHTML(group.id) + '">' +
-      '<div class="group-card__avatar">' +
+      '<article class="group-card" data-group-id="' + Render.escapeHTML(group.id) + '" data-group-category="' + Render.escapeHTML(category) + '">' +
+      '<div class="' + coverClass + '"></div>' +
+      '<div class="group-card__logo">' +
       '<img src="' + Render.escapeHTML(group.avatar || '') + '" alt="群组头像" />' +
       '</div>' +
-      '<div class="group-card__info">' +
+      '<div class="group-card__body">' +
       '<h3 class="group-card__name">' + Render.escapeHTML(group.name) + '</h3>' +
       '<p class="group-card__description">' + Render.escapeHTML(group.description || '暂无简介') + '</p>' +
       '<div class="group-card__meta">' +
-      '<span>👥 ' + membersCount + ' 成员</span>' +
-      '<span>创建者：' + Render.escapeHTML(creator ? creator.nickname : '未知') + '</span>' +
+      '<span><span>👥</span><span>' + membersCount + ' 人</span></span>' +
+      '<span><span>👑</span><span>' + Render.escapeHTML(creator ? creator.nickname : '未知') + '</span></span>' +
       '</div>' +
       '</div>' +
       '<div class="group-card__actions">' +
-      (isMember 
-        ? '<button type="button" class="btn-secondary" data-action="leave">退出群组</button>' +
-          '<button type="button" class="btn-primary" data-action="view">查看动态</button>'
-        : '<button type="button" class="btn-primary" data-action="join">加入群组</button>') +
+      actionHtml +
       '</div>' +
-      '</div>'
+      '</article>'
     );
   }
 
@@ -78,8 +106,8 @@
       return renderGroupCard(group, currentUser);
     }).join('');
     
-    // 绑定事件
-    container.addEventListener('click', function (e) {
+    // 确保只绑定一次点击事件
+    container.onclick = function (e) {
       var btn = e.target.closest('button[data-action]');
       if (!btn) return;
       var action = btn.getAttribute('data-action');
@@ -96,9 +124,17 @@
           return;
         }
         var user = Auth.getCurrentUser();
-        DataStore.joinGroup(user.id, groupId);
-        renderGroups();
-        window.alert('已成功加入群组！');
+        // 加入按钮加载动效
+        btn.classList.add('is-loading');
+        btn.textContent = '加入中...';
+        setTimeout(function () {
+          DataStore.joinGroup(user.id, groupId);
+          btn.classList.remove('is-loading');
+          btn.textContent = '✓ 已加入';
+          setTimeout(function () {
+            renderGroups();
+          }, 400);
+        }, 500);
       } else if (action === 'leave') {
         if (window.confirm('确定要退出这个群组吗？')) {
           var user = Auth.getCurrentUser();
@@ -109,7 +145,7 @@
       } else if (action === 'view') {
         viewGroupDetail(group);
       }
-    });
+    };
   }
 
   function viewGroupDetail(group) {
@@ -165,6 +201,9 @@
     openModal('groupDetailModal');
   }
 
+  var currentCategory = 'all';
+  var currentSearchKeyword = '';
+
   function renderGroups() {
     var currentUser = Auth.getCurrentUser();
     var currentTab = qs('.tabs .tab.is-active');
@@ -179,6 +218,22 @@
       groups = DataStore.getGroups();
     }
     
+    // 分类过滤
+    if (currentCategory && currentCategory !== 'all') {
+      groups = groups.filter(function (g) {
+        return getGroupCategory(g) === currentCategory;
+      });
+    }
+
+    // 关键字搜索
+    if (currentSearchKeyword) {
+      var kw = currentSearchKeyword.toLowerCase();
+      groups = groups.filter(function (g) {
+        var txt = (g.name + ' ' + (g.description || '')).toLowerCase();
+        return txt.indexOf(kw) !== -1;
+      });
+    }
+
     renderGroupsList(groups, currentUser);
   }
 
@@ -193,7 +248,7 @@
       return;
     }
     
-    // 标签切换
+    // 我的 / 全部 标签切换
     qsa('.tabs .tab[data-groups-tab]').forEach(function (tab) {
       tab.addEventListener('click', function () {
         qsa('.tabs .tab').forEach(function (t) {
@@ -202,6 +257,27 @@
         renderGroups();
       });
     });
+
+    // 分类 pill 筛选
+    qsa('.groups-filter-pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        var category = pill.getAttribute('data-group-category') || 'all';
+        currentCategory = category;
+        qsa('.groups-filter-pill').forEach(function (p) {
+          p.classList.toggle('is-active', p === pill);
+        });
+        renderGroups();
+      });
+    });
+
+    // 顶部搜索框
+    var searchInput = qs('#groupSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        currentSearchKeyword = searchInput.value.trim();
+        renderGroups();
+      });
+    }
     
     // 创建群组按钮
     var createBtn = qs('#createGroupBtn');

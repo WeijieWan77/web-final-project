@@ -423,25 +423,69 @@
 
   // --- 登录页 login.html ---
 
+  // --- 通用浮动标签与输入框逻辑 ---
+  function initFloatingLabels() {
+    qsa('.input-field-wrapper').forEach(function(wrapper) {
+      var input = qs('input', wrapper);
+      var label = qs('label', wrapper);
+
+      function checkInput() {
+        if (input.value.trim() !== '') {
+          wrapper.classList.add('is-active');
+        } else {
+          wrapper.classList.remove('is-active');
+        }
+      }
+
+      // 初始化时检查
+      checkInput();
+
+      input.addEventListener('focus', function() {
+        wrapper.classList.add('is-active');
+      });
+
+      input.addEventListener('blur', function() {
+        checkInput();
+      });
+    });
+  }
+
+  // --- 密码可见性切换函数 ---
+  function setupPasswordToggle(toggleBtnId, passwordInputId) {
+    var toggleBtn = qs(toggleBtnId);
+    var passwordInput = qs(passwordInputId);
+
+    if (toggleBtn && passwordInput) {
+      // 初始状态为隐藏
+      passwordInput.setAttribute('type', 'password');
+      toggleBtn.classList.add('icon-eye-off'); // 默认显示闭眼图标
+
+      toggleBtn.addEventListener('click', function () {
+        var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        toggleBtn.classList.toggle('icon-eye');
+        toggleBtn.classList.toggle('icon-eye-off');
+        toggleBtn.setAttribute('aria-label', type === 'password' ? '显示密码' : '隐藏密码');
+      });
+    }
+  }
+
+  // --- 登录页 login.html ---
+
   function initLoginPage() {
     var pageKey = getPageKey();
     if (pageKey !== 'login') return;
+
+    initFloatingLabels(); // 初始化浮动标签
 
     var remembered = Auth.getRememberedStudentId();
     var studentInput = qs('#loginStudentId');
     if (studentInput && remembered) {
       studentInput.value = remembered;
+      studentInput.closest('.input-field-wrapper')?.classList.add('is-active'); // 记住我时也激活浮动标签
     }
-
-    var toggleBtn = qs('#togglePasswordVisibilityBtn');
-    var passwordInput = qs('#loginPassword');
-    if (toggleBtn && passwordInput) {
-      toggleBtn.addEventListener('click', function () {
-        var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        toggleBtn.textContent = type === 'password' ? '显示' : '隐藏';
-      });
-    }
+    
+    setupPasswordToggle('#togglePasswordVisibilityBtn', '#loginPassword');
 
     var forgotBtn = qs('#forgotPasswordBtn');
     if (forgotBtn) {
@@ -472,6 +516,11 @@
   function initRegisterPage() {
     var pageKey = getPageKey();
     if (pageKey !== 'register') return;
+
+    initFloatingLabels(); // 初始化浮动标签
+    setupPasswordToggle('#togglePasswordVisibilityBtn', '#regPassword');
+    setupPasswordToggle('#toggleConfirmPasswordVisibilityBtn', '#regConfirmPassword');
+
 
     var step1Form = qs('#registerForm');
     var step2Section = qs('#registerStep2');
