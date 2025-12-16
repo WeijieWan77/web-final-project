@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人主页 - CampusLife</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="profile">
+  <!-- 个人中心也复用全局导航 -->
+  <header class="navbar" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+    <div class="navbar__center">
+      <form class="navbar__search" role="search">
+        <input type="search" id="profileSearchInput" placeholder="搜索 TA 的动态..." aria-label="搜索动态" />
+        <button type="submit">搜索</button>
+      </form>
+    </div>
+    <div class="navbar__right">
+      <button type="button" class="btn-icon" id="openPostModalFromProfileBtn" aria-label="发布动态">+</button>
+      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+      <div class="navbar__user">
+        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+          <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </button>
+        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <a href="login.html" data-auth-visible="guest">登录</a>
+          <a href="register.html" data-auth-visible="guest">注册</a>
+          <a href="profile.html" data-auth-visible="user">个人中心</a>
+          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
+          <a href="admin.html" data-auth-visible="admin">管理员后台</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main main--profile" aria-label="个人主页">
+    <!-- 顶部背景 + 头像区 -->
+    <section class="profile-hero">
+      <div class="profile-hero__cover" id="profileCover"></div>
+      <div class="profile-hero__info">
+        <div class="profile-hero__avatar-wrapper">
+          <img src="" alt="头像" id="profileAvatar" class="profile-avatar" />
+        </div>
+        <div class="profile-hero__meta">
+          <h1 id="profileNickname" class="profile-nickname"></h1>
+          <p id="profileBio" class="profile-bio"></p>
+          <div id="profileTags" class="profile-tags">
+            <!-- JS 渲染兴趣标签 -->
+          </div>
+        </div>
+        <div class="profile-hero__actions">
+          <button type="button" id="editProfileBtn" class="btn-secondary" data-profile-self="true">编辑资料</button>
+          <button type="button" id="followToggleBtn" class="btn-primary" data-profile-self="false">关注</button>
+        </div>
+      </div>
+      <div class="profile-hero__stats">
+        <div class="profile-stat">
+          <span class="profile-stat__value" id="profileFollowersCount">0</span>
+          <span class="profile-stat__label">粉丝</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat__value" id="profileFollowingCount">0</span>
+          <span class="profile-stat__label">关注</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat__value" id="profileLikesCount">0</span>
+          <span class="profile-stat__label">获赞</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 资料完善度 / 活跃度进度条 -->
+    <section class="profile-metrics" aria-label="数据统计">
+      <div class="metric">
+        <div class="metric__header">
+          <span class="metric__title">资料完善度</span>
+          <span class="metric__value" id="profileCompletionLabel">0%</span>
+        </div>
+        <div class="metric__bar">
+          <div class="metric__bar-fill" id="profileCompletionBar"></div>
+        </div>
+      </div>
+      <div class="metric">
+        <div class="metric__header">
+          <span class="metric__title">活跃度</span>
+          <span class="metric__value" id="profileActivityLabel">0%</span>
+        </div>
+        <div class="metric__bar">
+          <div class="metric__bar-fill" id="profileActivityBar"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 动态 / 收藏 Tabs -->
+    <section class="profile-content">
+      <nav class="tabs" aria-label="个人内容切换">
+        <button type="button" class="tab is-active" data-profile-tab="posts">我的动态</button>
+        <button type="button" class="tab" data-profile-tab="favorites">我的收藏</button>
+      </nav>
+      <div class="profile-content__panel" id="profilePostsContainer" data-profile-panel="posts">
+        <!-- JS 渲染用户动态 -->
+      </div>
+      <div class="profile-content__panel" id="profileFavoritesContainer" data-profile-panel="favorites" hidden>
+        <!-- JS 渲染收藏动态 -->
+      </div>
+    </section>
+  </main>
+
+  <!-- 编辑资料模态框 -->
+  <div class="modal" id="editProfileModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="editProfileModalTitle">
+    <div class="modal__overlay" data-close-modal="editProfileModal"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="editProfileModalTitle">编辑资料</h2>
+        <button type="button" class="modal__close" data-close-modal="editProfileModal" aria-label="关闭">×</button>
+      </header>
+      <form id="editProfileForm" class="modal__body">
+        <label>
+          昵称
+          <input type="text" id="editNicknameInput" required />
+        </label>
+        <label>
+          个性签名
+          <textarea id="editBioInput" rows="3"></textarea>
+        </label>
+        <label>
+          头像 URL
+          <input type="url" id="editAvatarInput" placeholder="粘贴头像链接" />
+        </label>
+        <footer class="modal__footer">
+          <button type="button" class="btn-secondary" data-close-modal="editProfileModal">取消</button>
+          <button type="submit" class="btn-primary">保存</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>

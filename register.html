@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>注册 - CampusLife 校园生活交友平台</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="register">
+  <header class="navbar navbar--simple" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+  </header>
+
+  <main class="main main--auth">
+    <section class="auth-card" aria-label="注册表单">
+      <h1 class="auth-card__title">加入 CampusLife</h1>
+      <p class="auth-card__subtitle">创建你的校园生活档案，发现更多同好</p>
+
+      <!-- Step 1: 基础信息注册 -->
+      <form id="registerForm" class="auth-form" data-step="1">
+        <label for="regStudentId">学号</label>
+        <input type="text" id="regStudentId" name="studentId" required placeholder="请输入学号" />
+
+        <label for="regNickname">昵称</label>
+        <input type="text" id="regNickname" name="nickname" required placeholder="你在校园里的昵称" />
+
+        <label for="regPassword">密码</label>
+        <input type="password" id="regPassword" name="password" required placeholder="至少 6 位字符" />
+
+        <label for="regConfirmPassword">确认密码</label>
+        <input type="password" id="regConfirmPassword" name="confirmPassword" required placeholder="再次输入密码" />
+
+        <button type="submit" class="btn-primary auth-form__submit">下一步</button>
+      </form>
+
+      <!-- Step 2: 兴趣标签 & 默认头像 -->
+      <section id="registerStep2" class="auth-form auth-form--step2" hidden aria-label="完善个人兴趣">
+        <h2 class="auth-form__subtitle">选择你的兴趣标签</h2>
+        <p class="auth-form__hint">至少选择 3 个，让更多同好发现你</p>
+
+        <div id="interestTagOptions" class="tag-list">
+          <!-- JS 渲染若干兴趣标签选项，如 #考研 #运动 #美食 -->
+        </div>
+
+        <h2 class="auth-form__subtitle">选择一个默认头像</h2>
+        <div id="avatarOptions" class="avatar-option-list">
+          <!-- JS 渲染若干默认头像选项 -->
+        </div>
+
+        <div class="auth-form__actions">
+          <button type="button" class="btn-secondary" id="registerBackToStep1Btn">上一步</button>
+          <button type="button" class="btn-primary" id="registerCompleteBtn">完成注册</button>
+        </div>
+      </section>
+
+      <p class="auth-card__footer">
+        已有账号？
+        <a href="login.html">立即登录</a>
+      </p>
+    </section>
+  </main>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

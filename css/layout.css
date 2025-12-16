@@ -1,0 +1,245 @@
+/* layout.css - 页面布局与响应式规则 */
+
+/* 主体布局 */
+
+.main {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+.main--auth {
+  min-height: calc(100vh - var(--navbar-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 首页布局：动态流 + 侧边栏 */
+
+.main--home {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(260px, var(--sidebar-width));
+  gap: 18px;
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feed__header {
+  margin-bottom: 4px;
+}
+
+.feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--navbar-height) + 10px);
+  height: fit-content;
+}
+
+/* 动态卡片九宫格布局示例 */
+
+.post-card__images-grid--single {
+  grid-template-columns: 1fr;
+}
+
+.post-card__images-grid--multi {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.post-card__images-grid img {
+  width: 100%;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+/* 详情页布局 */
+
+.main--detail {
+  max-width: 720px;
+}
+
+.post-detail {
+  margin-bottom: 14px;
+  padding: 18px 18px 14px;
+  border-radius: 20px;
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-elevated);
+}
+
+.post-detail__owner-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.comments {
+  padding: 14px 16px 18px;
+  border-radius: 18px;
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.comments__header h2 {
+  font-size: 16px;
+}
+
+/* 个人主页布局 */
+
+.main--profile {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.profile-content {
+  margin-top: 8px;
+}
+
+.profile-content__panel {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+/* 管理员后台布局 */
+
+.main--admin {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 注册第二步：兴趣标签与头像布局 */
+
+.auth-form--step2 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-form__subtitle {
+  font-size: var(--font-size-md);
+  margin-bottom: 4px;
+}
+
+.auth-form__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-option {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.tag-option.is-selected {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.avatar-option-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.avatar-option {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.avatar-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-option.is-selected {
+  border-color: var(--color-primary);
+}
+
+.auth-form__actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* 响应式设计 */
+
+@media (max-width: 960px) {
+  .main--home {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .navbar {
+    padding: 0 10px;
+  }
+
+  .navbar__center {
+    display: none;
+  }
+
+  .main {
+    padding: 12px 12px 24px;
+  }
+
+  .profile-hero__info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-hero__actions {
+    flex-direction: row;
+  }
+
+  .profile-hero__stats {
+    justify-content: space-around;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    margin: 16px;
+    padding: 24px 18px;
+  }
+
+  .tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .profile-content__panel {
+    grid-template-columns: 1fr;
+  }
+}

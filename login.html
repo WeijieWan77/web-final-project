@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登录 - CampusLife 校园生活交友平台</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="login">
+  <!-- 顶部导航，仅保留 Logo -->
+  <header class="navbar navbar--simple" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+  </header>
+
+  <main class="main main--auth">
+    <section class="auth-card" aria-label="登录表单">
+      <h1 class="auth-card__title">欢迎回来</h1>
+      <p class="auth-card__subtitle">登录你的校园账号，开启今天的校园生活</p>
+
+      <form id="loginForm" class="auth-form">
+        <label for="loginStudentId">学号</label>
+        <input type="text" id="loginStudentId" name="studentId" required placeholder="请输入学号" />
+
+        <label for="loginPassword">密码</label>
+        <div class="input-group input-group--password">
+          <input type="password" id="loginPassword" name="password" required placeholder="请输入密码" />
+          <button type="button" id="togglePasswordVisibilityBtn" class="input-group__suffix" aria-label="切换密码可见性">
+            显示
+          </button>
+        </div>
+
+        <div class="auth-form__row auth-form__row--between">
+          <label class="checkbox">
+            <input type="checkbox" id="rememberMe" />
+            <span>记住我</span>
+          </label>
+          <button type="button" id="forgotPasswordBtn" class="link-button">忘记密码？</button>
+        </div>
+
+        <button type="submit" class="btn-primary auth-form__submit">登录</button>
+      </form>
+
+      <p class="auth-card__footer">
+        还没有账号？
+        <a href="register.html">立即注册</a>
+      </p>
+    </section>
+  </main>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

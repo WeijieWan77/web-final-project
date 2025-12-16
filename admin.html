@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>管理员后台 - CampusLife</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="admin">
+  <header class="navbar" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+      <span class="navbar__badge">Admin</span>
+    </div>
+    <div class="navbar__center"></div>
+    <div class="navbar__right">
+      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+      <div class="navbar__user">
+        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+          <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </button>
+        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <a href="profile.html" data-auth-visible="user">个人中心</a>
+          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main main--admin" aria-label="管理员后台">
+    <section class="admin-section" aria-labelledby="adminUsersTitle">
+      <header class="admin-section__header">
+        <h1 id="adminUsersTitle" class="admin-section__title">用户管理</h1>
+        <p class="admin-section__subtitle">查看所有注册用户信息，对异常账号进行处理</p>
+      </header>
+
+      <div class="admin-table-wrapper">
+        <table class="admin-table" aria-describedby="adminUsersTitle">
+          <thead>
+            <tr>
+              <th>学号</th>
+              <th>昵称</th>
+              <th>角色</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="adminUserTableBody">
+            <!-- JS 渲染用户列表 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-section" aria-labelledby="adminPostsTitle">
+      <header class="admin-section__header">
+        <h2 id="adminPostsTitle" class="admin-section__title">动态审核</h2>
+        <p class="admin-section__subtitle">快速查看最近发布的动态，对违规内容进行删除</p>
+      </header>
+      <div id="adminPostList" class="admin-post-list">
+        <!-- JS 渲染动态审核列表 -->
+      </div>
+    </section>
+  </main>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

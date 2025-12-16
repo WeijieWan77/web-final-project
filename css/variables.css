@@ -1,0 +1,69 @@
+/* variables.css - 全局 CSS 变量与主题设置 */
+
+:root {
+  /* 主题色与基础色彩 */
+  --color-primary: #ff4f79;
+  --color-primary-soft: rgba(255, 79, 121, 0.12);
+  --color-primary-hover: #ff2e64;
+  --color-secondary: #4b6bfb;
+  --color-bg: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f9f9fb;
+  --color-border-subtle: #e5e5ea;
+  --color-text-main: #161823;
+  --color-text-muted: #8e8e93;
+  --color-danger: #ff4d4f;
+
+  /* 圆角与阴影 */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 16px 40px rgba(15, 23, 42, 0.15);
+
+  /* 尺寸与间距 */
+  --navbar-height: 60px;
+  --content-max-width: 1180px;
+  --sidebar-width: 320px;
+  --gutter: 16px;
+
+  /* 字体 */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+
+  /* 动画与过渡 */
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.25s ease;
+
+  /* 夜间模式变量（默认值与日间一致，JS 切换 data-theme="dark" 时覆盖） */
+  --color-bg-elevated: var(--color-surface);
+  --color-input-bg: #f4f4f6;
+}
+
+/* 夜间模式：通过在 body 上设置 data-theme="dark" 启用 */
+
+body[data-theme='dark'] {
+  --color-bg: #0b1020;
+  --color-bg-elevated: #151a2c;
+  --color-surface: #151a2c;
+  --color-surface-soft: #101524;
+  --color-border-subtle: rgba(148, 163, 184, 0.4);
+  --color-text-main: #e5e7eb;
+  --color-text-muted: #9ca3af;
+  --color-input-bg: #111827;
+  --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.6);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusLife - 校园生活交友平台</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="index">
+  <!-- 跑马灯提示条 -->
+  <div class="top-marquee" aria-label="平台公告">
+    <div class="top-marquee__content">
+      欢迎来到校园交友平台 CampusLife，文明发言，理性互动，共建和谐校园社区~
+    </div>
+  </div>
+
+  <!-- 顶部导航栏 -->
+  <header class="navbar" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+    <div class="navbar__center">
+      <form class="navbar__search" role="search">
+        <input type="search" id="globalSearchInput" placeholder="搜索校园动态、话题..." aria-label="搜索动态" />
+        <button type="submit">搜索</button>
+      </form>
+    </div>
+    <div class="navbar__right">
+      <button type="button" class="btn-icon" id="openPostModalBtn" aria-label="发布动态">+</button>
+      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+      <div class="navbar__user">
+        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+          <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </button>
+        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <a href="login.html" data-auth-visible="guest">登录</a>
+          <a href="register.html" data-auth-visible="guest">注册</a>
+          <a href="profile.html" data-auth-visible="user">个人中心</a>
+          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
+          <a href="admin.html" data-auth-visible="admin">管理员后台</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="main main--home">
+    <!-- 首页左侧：动态流 -->
+    <section class="feed" aria-label="动态流">
+      <header class="feed__header">
+        <nav class="tabs" aria-label="动态筛选">
+          <button type="button" class="tab is-active" data-feed-tab="recommend">推荐</button>
+          <button type="button" class="tab" data-feed-tab="following">关注</button>
+        </nav>
+      </header>
+      <div id="postFeedContainer" class="feed__list" aria-live="polite">
+        <!-- JS 渲染动态卡片 -->
+      </div>
+    </section>
+
+    <!-- 首页右侧：侧边栏 -->
+    <aside class="sidebar" aria-label="侧边信息">
+      <section class="sidebar-section" aria-labelledby="hotTopicsTitle">
+        <h2 id="hotTopicsTitle" class="sidebar-section__title">热门话题榜</h2>
+        <ul id="hotTopicsList" class="sidebar-section__list">
+          <!-- JS 渲染热门话题 -->
+        </ul>
+      </section>
+
+      <section class="sidebar-section" aria-labelledby="activeUsersTitle">
+        <h2 id="activeUsersTitle" class="sidebar-section__title">活跃用户推荐</h2>
+        <ul id="activeUsersList" class="sidebar-section__list">
+          <!-- JS 渲染活跃用户 -->
+        </ul>
+      </section>
+    </aside>
+  </main>
+
+  <!-- 发布动态模态框 -->
+  <div class="modal" id="postModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
+    <div class="modal__overlay" data-close-modal="postModal"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="postModalTitle">发布新动态</h2>
+        <button type="button" class="modal__close" data-close-modal="postModal" aria-label="关闭">×</button>
+      </header>
+      <form id="postForm" class="modal__body">
+        <label>
+          内容
+          <textarea id="postContentInput" rows="4" placeholder="分享今天在校园里的故事..." required></textarea>
+        </label>
+        <label>
+          图片 URL（每行一张，可选）
+          <textarea id="postImagesInput" rows="3" placeholder="粘贴图片链接，模拟上传"></textarea>
+        </label>
+        <label>
+          可见范围
+          <select id="postVisibilitySelect">
+            <option value="public">公开</option>
+            <option value="friends">仅好友可见</option>
+          </select>
+        </label>
+        <footer class="modal__footer">
+          <button type="button" class="btn-secondary" data-close-modal="postModal">取消</button>
+          <button type="submit" class="btn-primary">发布</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

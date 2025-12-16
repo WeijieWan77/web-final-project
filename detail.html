@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>动态详情 - CampusLife</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="detail">
+  <header class="navbar" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+    <div class="navbar__center">
+      <form class="navbar__search" role="search">
+        <input type="search" id="detailSearchInput" placeholder="搜索更多校园动态..." aria-label="搜索动态" />
+        <button type="submit">搜索</button>
+      </form>
+    </div>
+    <div class="navbar__right">
+      <button type="button" class="btn-icon" id="openPostModalFromDetailBtn" aria-label="发布动态">+</button>
+      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+      <div class="navbar__user">
+        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+          <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </button>
+        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <a href="login.html" data-auth-visible="guest">登录</a>
+          <a href="register.html" data-auth-visible="guest">注册</a>
+          <a href="profile.html" data-auth-visible="user">个人中心</a>
+          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
+          <a href="admin.html" data-auth-visible="admin">管理员后台</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main main--detail" aria-label="动态详情">
+    <article id="postDetailContainer" class="post-detail">
+      <!-- JS 渲染完整动态内容（含图文） -->
+    </article>
+
+    <!-- 作者操作按钮（编辑 / 删除） -->
+    <section id="postOwnerActions" class="post-detail__owner-actions" hidden>
+      <button type="button" id="editPostBtn" class="btn-secondary">编辑</button>
+      <button type="button" id="deletePostBtn" class="btn-danger">删除</button>
+    </section>
+
+    <!-- 评论区 -->
+    <section class="comments" aria-label="评论区">
+      <header class="comments__header">
+        <h2>评论</h2>
+      </header>
+      <form id="commentForm" class="comments__form">
+        <div class="comments__input-group">
+          <textarea id="commentContentInput" rows="3" placeholder="友善发言，理性讨论~" required></textarea>
+          <button type="button" id="emojiToggleBtn" class="btn-secondary comments__emoji-toggle" aria-label="选择表情">😀</button>
+        </div>
+        <div id="emojiPicker" class="emoji-picker" hidden>
+          <!-- JS 渲染简单 Emoji 列表 -->
+        </div>
+        <button type="submit" class="btn-primary comments__submit">发布评论</button>
+      </form>
+
+      <ul id="commentList" class="comments__list" aria-live="polite">
+        <!-- JS 渲染评论列表，时间倒序 -->
+      </ul>
+    </section>
+  </main>
+
+  <!-- 编辑动态模态框 -->
+  <div class="modal" id="editPostModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="editPostModalTitle">
+    <div class="modal__overlay" data-close-modal="editPostModal"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="editPostModalTitle">编辑动态</h2>
+        <button type="button" class="modal__close" data-close-modal="editPostModal" aria-label="关闭">×</button>
+      </header>
+      <form id="editPostForm" class="modal__body">
+        <label>
+          内容
+          <textarea id="editPostContentInput" rows="4" required></textarea>
+        </label>
+        <label>
+          图片 URL（每行一张，可选）
+          <textarea id="editPostImagesInput" rows="3"></textarea>
+        </label>
+        <footer class="modal__footer">
+          <button type="button" class="btn-secondary" data-close-modal="editPostModal">取消</button>
+          <button type="submit" class="btn-primary">保存修改</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
