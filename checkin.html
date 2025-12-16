@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>打卡签到 - CampusLife</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="checkin">
+  <header class="navbar" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+    <div class="navbar__center"></div>
+    <div class="navbar__right">
+      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+      <div class="navbar__user">
+        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+          <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </button>
+        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <a href="login.html" data-auth-visible="guest">登录</a>
+          <a href="register.html" data-auth-visible="guest">注册</a>
+          <a href="profile.html" data-auth-visible="user">个人中心</a>
+          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
+          <a href="admin.html" data-auth-visible="admin">管理员后台</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main main--checkin">
+    <div class="checkin-header">
+      <h1>每日打卡</h1>
+      <div class="checkin-stats">
+        <div class="checkin-stat">
+          <span class="checkin-stat__value" id="consecutiveDays">0</span>
+          <span class="checkin-stat__label">连续签到</span>
+        </div>
+        <div class="checkin-stat">
+          <span class="checkin-stat__value" id="totalCheckins">0</span>
+          <span class="checkin-stat__label">总签到数</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="checkin-card" id="checkinCard">
+      <div class="checkin-card__date" id="checkinDate"></div>
+      <div class="checkin-card__status" id="checkinStatus">
+        <!-- JS 渲染签到状态 -->
+      </div>
+      <form id="checkinForm" class="checkin-form">
+        <textarea id="checkinContentInput" rows="3" placeholder="记录今天的心情或计划..."></textarea>
+        <button type="submit" id="checkinBtn" class="btn-primary btn-primary--large">签到</button>
+      </form>
+    </div>
+
+    <div class="checkin-history">
+      <h2>签到历史</h2>
+      <div id="checkinHistoryList" class="checkin-history-list">
+        <!-- JS 渲染签到历史 -->
+      </div>
+    </div>
+  </main>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/checkin.js"></script>
+</body>
+</html>

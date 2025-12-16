@@ -21,6 +21,9 @@
       </form>
     </div>
     <div class="navbar__right">
+      <a href="groups.html" class="btn-icon" data-auth-visible="user" aria-label="群组" title="群组">👥</a>
+      <a href="checkin.html" class="btn-icon" data-auth-visible="user" aria-label="打卡签到" title="打卡签到">📅</a>
+      <a href="review.html" class="btn-icon" data-auth-visible="user" aria-label="年度回顾" title="年度回顾">📊</a>
       <button type="button" class="btn-icon" id="openPostModalFromDetailBtn" aria-label="发布动态">+</button>
       <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
         <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
@@ -45,10 +48,16 @@
       <!-- JS 渲染完整动态内容（含图文） -->
     </article>
 
-    <!-- 作者操作按钮（编辑 / 删除） -->
-    <section id="postOwnerActions" class="post-detail__owner-actions" hidden>
-      <button type="button" id="editPostBtn" class="btn-secondary">编辑</button>
-      <button type="button" id="deletePostBtn" class="btn-danger">删除</button>
+    <!-- 动态操作按钮 -->
+    <section class="post-detail__actions">
+      <div id="postOwnerActions" class="post-detail__owner-actions" hidden>
+        <button type="button" id="editPostBtn" class="btn-secondary">编辑</button>
+        <button type="button" id="deletePostBtn" class="btn-danger">删除</button>
+      </div>
+      <div class="post-detail__public-actions">
+        <button type="button" id="repostBtn" class="btn-secondary" data-action="repost">🔁 转发</button>
+        <button type="button" id="favoriteBtn" class="btn-secondary" data-action="favorite">☆ 收藏</button>
+      </div>
     </section>
 
     <!-- 评论区 -->
@@ -93,6 +102,30 @@
         <footer class="modal__footer">
           <button type="button" class="btn-secondary" data-close-modal="editPostModal">取消</button>
           <button type="submit" class="btn-primary">保存修改</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- 转发动态模态框 -->
+  <div class="modal" id="repostModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="repostModalTitle">
+    <div class="modal__overlay" data-close-modal="repostModal"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="repostModalTitle">转发动态</h2>
+        <button type="button" class="modal__close" data-close-modal="repostModal" aria-label="关闭">×</button>
+      </header>
+      <form id="repostForm" class="modal__body">
+        <div id="repostOriginalContent" class="repost-original">
+          <!-- JS 渲染原动态内容 -->
+        </div>
+        <label>
+          转发理由（可选）
+          <textarea id="repostContentInput" rows="3" placeholder="说说你的想法..."></textarea>
+        </label>
+        <footer class="modal__footer">
+          <button type="button" class="btn-secondary" data-close-modal="repostModal">取消</button>
+          <button type="submit" class="btn-primary">转发</button>
         </footer>
       </form>
     </div>

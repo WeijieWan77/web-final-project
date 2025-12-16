@@ -13,6 +13,11 @@
     rememberedStudentId: 'campuslife_rememberedStudentId',
     theme: 'campuslife_theme',
     pendingRegistration: 'campuslife_pendingRegistration',
+    userVisits: 'campuslife_userVisits', // 用户主页访问量
+    favorites: 'campuslife_favorites', // 用户收藏的动态ID列表
+    reposts: 'campuslife_reposts', // 转发记录
+    groups: 'campuslife_groups', // 用户群组
+    checkins: 'campuslife_checkins', // 打卡签到记录
   };
 
   function safeParse(json, fallback) {
@@ -221,6 +226,41 @@
     return users[idx];
   }
 
+  // --- 用户活跃时间 ---
+  function updateUserLastActiveTime(userId) {
+    const user = getUserById(userId);
+    if (!user) return;
+    updateUser(userId, {
+      lastActiveTime: Date.now(),
+    });
+  }
+
+  function getUserLastActiveTime(userId) {
+    const user = getUserById(userId);
+    return user ? (user.lastActiveTime || null) : null;
+  }
+
+  // --- 用户访问量 ---
+  function getUserVisits() {
+    return getItemJSON(STORAGE_KEYS.userVisits, {});
+  }
+
+  function saveUserVisits(visits) {
+    setItemJSON(STORAGE_KEYS.userVisits, visits);
+  }
+
+  function incrementUserVisitCount(userId) {
+    const visits = getUserVisits();
+    visits[userId] = (visits[userId] || 0) + 1;
+    saveUserVisits(visits);
+    return visits[userId];
+  }
+
+  function getUserVisitCount(userId) {
+    const visits = getUserVisits();
+    return visits[userId] || 0;
+  }
+
   // --- 关注关系 ---
 
   function followUser(followerId, targetUserId) {
@@ -392,6 +432,264 @@
     }
   }
 
+  // --- 收藏功能 ---
+  function getUserFavorites(userId) {
+    const favorites = getItemJSON(STORAGE_KEYS.favorites, {});
+    return favorites[userId] || [];
+  }
+
+  function saveUserFavorites(userId, postIds) {
+    const favorites = getItemJSON(STORAGE_KEYS.favorites, {});
+    favorites[userId] = postIds;
+    setItemJSON(STORAGE_KEYS.favorites, favorites);
+  }
+
+  function toggleFavorite(userId, postId) {
+    const favorites = getUserFavorites(userId);
+    const index = favorites.indexOf(postId);
+    if (index === -1) {
+      favorites.push(postId);
+    } else {
+      favorites.splice(index, 1);
+    }
+    saveUserFavorites(userId, favorites);
+    return index === -1; // 返回true表示已收藏，false表示已取消
+  }
+
+  function isFavorite(userId, postId) {
+    const favorites = getUserFavorites(userId);
+    return favorites.indexOf(postId) !== -1;
+  }
+
+  // --- 转发功能 ---
+  function addRepost(userId, originalPostId, content) {
+    const reposts = getItemJSON(STORAGE_KEYS.reposts, []);
+    const newRepost = {
+      id: generateId('r'),
+      userId: userId,
+      originalPostId: originalPostId,
+      content: content || '',
+      timestamp: Date.now(),
+    };
+    reposts.push(newRepost);
+    setItemJSON(STORAGE_KEYS.reposts, reposts);
+    
+    // 创建一个转发动态
+    const originalPost = getPostById(originalPostId);
+    if (originalPost) {
+      const repostPost = addPost({
+        authorId: userId,
+        content: content || '转发动态',
+        images: [],
+        tags: [],
+        visibility: 'public',
+        repostedFrom: originalPostId,
+        isRepost: true,
+      });
+      return { repost: newRepost, post: repostPost };
+    }
+    return { repost: newRepost, post: null };
+  }
+
+  function getRepostCount(postId) {
+    const reposts = getItemJSON(STORAGE_KEYS.reposts, []);
+    return reposts.filter(function (r) {
+      return r.originalPostId === postId;
+    }).length;
+  }
+
+  // --- 群组功能 ---
+  function getGroups() {
+    return getItemJSON(STORAGE_KEYS.groups, []);
+  }
+
+  function saveGroups(groups) {
+    setItemJSON(STORAGE_KEYS.groups, groups);
+  }
+
+  function getGroupById(groupId) {
+    return getGroups().find((g) => g.id === groupId) || null;
+  }
+
+  function createGroup(creatorId, name, description, avatar) {
+    const groups = getGroups();
+    const newGroup = {
+      id: generateId('g'),
+      name: name,
+      description: description || '',
+      avatar: avatar || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(name),
+      creatorId: creatorId,
+      members: [creatorId],
+      createdAt: Date.now(),
+    };
+    groups.push(newGroup);
+    saveGroups(groups);
+    return newGroup;
+  }
+
+  function joinGroup(userId, groupId) {
+    const groups = getGroups();
+    const group = groups.find((g) => g.id === groupId);
+    if (!group) return null;
+    if (group.members.indexOf(userId) === -1) {
+      group.members.push(userId);
+      saveGroups(groups);
+    }
+    return group;
+  }
+
+  function leaveGroup(userId, groupId) {
+    const groups = getGroups();
+    const group = groups.find((g) => g.id === groupId);
+    if (!group) return null;
+    group.members = group.members.filter((id) => id !== userId);
+    saveGroups(groups);
+    return group;
+  }
+
+  function getUserGroups(userId) {
+    return getGroups().filter((g) => g.members.indexOf(userId) !== -1);
+  }
+
+  function getGroupPosts(groupId) {
+    return getPosts().filter((p) => p.groupId === groupId);
+  }
+
+  // --- 打卡签到功能 ---
+  function getUserCheckins(userId) {
+    const checkins = getItemJSON(STORAGE_KEYS.checkins, {});
+    return checkins[userId] || [];
+  }
+
+  function saveUserCheckins(userId, checkinList) {
+    const checkins = getItemJSON(STORAGE_KEYS.checkins, {});
+    checkins[userId] = checkinList;
+    setItemJSON(STORAGE_KEYS.checkins, checkins);
+  }
+
+  function addCheckin(userId, content) {
+    const checkins = getUserCheckins(userId);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayTimestamp = today.getTime();
+    
+    // 检查今天是否已签到
+    const todayCheckin = checkins.find((c) => {
+      const checkinDate = new Date(c.timestamp);
+      checkinDate.setHours(0, 0, 0, 0);
+      return checkinDate.getTime() === todayTimestamp;
+    });
+    
+    if (todayCheckin) {
+      return { success: false, message: '今天已经签到过了' };
+    }
+    
+    const newCheckin = {
+      id: generateId('ch'),
+      userId: userId,
+      content: content || '',
+      timestamp: Date.now(),
+    };
+    checkins.unshift(newCheckin);
+    saveUserCheckins(userId, checkins);
+    
+    // 计算连续签到天数
+    const consecutiveDays = calculateConsecutiveDays(checkins);
+    
+    return { success: true, checkin: newCheckin, consecutiveDays: consecutiveDays };
+  }
+
+  function calculateConsecutiveDays(checkins) {
+    if (!checkins || checkins.length === 0) return 0;
+    
+    let consecutive = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < checkins.length; i++) {
+      const checkinDate = new Date(checkins[i].timestamp);
+      checkinDate.setHours(0, 0, 0, 0);
+      const diffDays = Math.floor((today.getTime() - checkinDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === consecutive) {
+        consecutive++;
+      } else {
+        break;
+      }
+    }
+    
+    return consecutive;
+  }
+
+  function hasCheckedInToday(userId) {
+    const checkins = getUserCheckins(userId);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayTimestamp = today.getTime();
+    
+    return checkins.some((c) => {
+      const checkinDate = new Date(c.timestamp);
+      checkinDate.setHours(0, 0, 0, 0);
+      return checkinDate.getTime() === todayTimestamp;
+    });
+  }
+
+  // --- 年度回顾数据统计 ---
+  function getUserYearStats(userId, year) {
+    year = year || new Date().getFullYear();
+    const startTimestamp = new Date(year, 0, 1).getTime();
+    const endTimestamp = new Date(year + 1, 0, 1).getTime();
+    
+    const posts = getPosts().filter((p) => {
+      return p.authorId === userId && p.timestamp >= startTimestamp && p.timestamp < endTimestamp;
+    });
+    
+    const comments = getComments().filter((c) => {
+      return c.userId === userId && c.timestamp >= startTimestamp && c.timestamp < endTimestamp;
+    });
+    
+    const checkins = getUserCheckins(userId).filter((c) => {
+      return c.timestamp >= startTimestamp && c.timestamp < endTimestamp;
+    });
+    
+    // 统计标签
+    const tagCounts = {};
+    posts.forEach((p) => {
+      (p.tags || []).forEach((tag) => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      });
+    });
+    
+    const topTags = Object.keys(tagCounts)
+      .map((tag) => ({ tag: tag, count: tagCounts[tag] }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+    
+    // 统计点赞总数
+    const totalLikes = posts.reduce((sum, p) => sum + (p.likes || 0), 0);
+    
+    // 统计最活跃的月份
+    const monthCounts = {};
+    posts.forEach((p) => {
+      const month = new Date(p.timestamp).getMonth();
+      monthCounts[month] = (monthCounts[month] || 0) + 1;
+    });
+    
+    const mostActiveMonth = Object.keys(monthCounts)
+      .map((m) => ({ month: parseInt(m), count: monthCounts[m] }))
+      .sort((a, b) => b.count - a.count)[0];
+    
+    return {
+      year: year,
+      postsCount: posts.length,
+      commentsCount: comments.length,
+      checkinsCount: checkins.length,
+      totalLikes: totalLikes,
+      topTags: topTags,
+      mostActiveMonth: mostActiveMonth ? mostActiveMonth.month : null,
+    };
+  }
+
   // 初始化默认数据
   initMockDataIfNeeded();
 
@@ -433,6 +731,34 @@
     // 注册临时数据
     getPendingRegistration,
     setPendingRegistration,
+    // 用户活跃时间和访问量
+    updateUserLastActiveTime,
+    getUserLastActiveTime,
+    incrementUserVisitCount,
+    getUserVisitCount,
+    // 收藏功能
+    getUserFavorites,
+    toggleFavorite,
+    isFavorite,
+    // 转发功能
+    addRepost,
+    getRepostCount,
+    // 群组功能
+    getGroups,
+    saveGroups,
+    getGroupById,
+    createGroup,
+    joinGroup,
+    leaveGroup,
+    getUserGroups,
+    getGroupPosts,
+    // 打卡签到功能
+    getUserCheckins,
+    addCheckin,
+    hasCheckedInToday,
+    calculateConsecutiveDays,
+    // 年度回顾
+    getUserYearStats,
     // 工具
     getItemJSON,
     setItemJSON,

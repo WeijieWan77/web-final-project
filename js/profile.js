@@ -49,13 +49,98 @@
     };
   }
 
-  function updateStatsUI(stats) {
+  function updateStatsUI(stats, visitCount) {
     var followersEl = qs('#profileFollowersCount');
     var followingEl = qs('#profileFollowingCount');
     var likesEl = qs('#profileLikesCount');
+    var visitEl = qs('#profileVisitCount');
     if (followersEl) followersEl.textContent = stats.followersCount;
     if (followingEl) followingEl.textContent = stats.followingCount;
     if (likesEl) likesEl.textContent = stats.likesCount;
+    if (visitEl) visitEl.textContent = visitCount || 0;
+  }
+
+  function formatTimeAgo(timestamp) {
+    if (!timestamp) return '从未活跃';
+    var diff = Date.now() - timestamp;
+    var sec = Math.floor(diff / 1000);
+    if (sec < 60) return '刚刚活跃';
+    var min = Math.floor(sec / 60);
+    if (min < 60) return min + ' 分钟前';
+    var hour = Math.floor(min / 60);
+    if (hour < 24) return hour + ' 小时前';
+    var day = Math.floor(hour / 24);
+    if (day < 7) return day + ' 天前';
+    var date = new Date(timestamp);
+    return date.getFullYear() + '-' + 
+           String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+           String(date.getDate()).padStart(2, '0');
+  }
+
+  function updateLastActiveUI(profileUser) {
+    var lastActiveTime = DataStore.getUserLastActiveTime(profileUser.id);
+    var lastActiveEl = qs('#profileLastActive');
+    if (lastActiveEl) {
+      lastActiveEl.textContent = formatTimeAgo(lastActiveTime);
+    }
+  }
+
+  function renderGallery(profileUser) {
+    var posts = DataStore.getPosts();
+    var userPosts = posts.filter(function (p) {
+      return p.authorId === profileUser.id && Array.isArray(p.images) && p.images.length > 0;
+    });
+    
+    var allImages = [];
+    userPosts.forEach(function (post) {
+      post.images.forEach(function (imgUrl) {
+        if (imgUrl && imgUrl.trim()) {
+          allImages.push(imgUrl.trim());
+        }
+      });
+    });
+
+    var galleryGrid = qs('#profileGalleryGrid');
+    var galleryEmpty = qs('#profileGalleryEmpty');
+    
+    if (!galleryGrid) return;
+
+    if (allImages.length === 0) {
+      if (galleryGrid) galleryGrid.innerHTML = '';
+      if (galleryEmpty) galleryEmpty.hidden = false;
+      return;
+    }
+
+    if (galleryEmpty) galleryEmpty.hidden = true;
+    
+    // 最多显示12张图片
+    var displayImages = allImages.slice(0, 12);
+    var html = displayImages.map(function (imgUrl, index) {
+      return '<div class="profile-gallery-item" data-index="' + index + '">' +
+             '<img src="' + Render.escapeHTML(imgUrl) + '" alt="相册图片 ' + (index + 1) + '" loading="lazy" />' +
+             '</div>';
+    }).join('');
+    
+    galleryGrid.innerHTML = html;
+    
+    // 点击图片可以查看大图（简单实现：跳转到包含该图片的动态）
+    galleryGrid.addEventListener('click', function (e) {
+      var item = e.target.closest('.profile-gallery-item');
+      if (!item) return;
+      var index = parseInt(item.getAttribute('data-index'), 10);
+      var imgUrl = displayImages[index];
+      // 找到包含该图片的动态
+      var targetPost = null;
+      for (var i = 0; i < userPosts.length; i++) {
+        if (userPosts[i].images.indexOf(imgUrl) !== -1) {
+          targetPost = userPosts[i];
+          break;
+        }
+      }
+      if (targetPost) {
+        window.location.href = 'detail.html?id=' + encodeURIComponent(targetPost.id);
+      }
+    });
   }
 
   function computeCompletion(profileUser) {
@@ -124,20 +209,16 @@
     }
 
     if (favoritesPanel) {
-      var comments = DataStore.getComments().filter(function (c) {
-        return c.userId === profileUser.id;
+      var favoritePostIds = DataStore.getUserFavorites(profileUser.id);
+      var favoritePosts = DataStore.getPosts().filter(function (p) {
+        return favoritePostIds.indexOf(p.id) !== -1;
+      }).sort(function (a, b) {
+        return b.timestamp - a.timestamp;
       });
-      var postIdSet = {};
-      comments.forEach(function (c) {
-        postIdSet[c.postId] = true;
-      });
-      var posts = DataStore.getPosts().filter(function (p) {
-        return postIdSet[p.id];
-      });
-      if (!posts.length) {
-        favoritesPanel.innerHTML = '<p style="padding: 10px; color: #999;">暂时还没有收藏/互动过的动态。</p>';
+      if (!favoritePosts.length) {
+        favoritesPanel.innerHTML = '<p style="padding: 10px; color: #999;">还没有收藏过动态。</p>';
       } else {
-        favoritesPanel.innerHTML = Render.renderPostList(posts, users, Auth.getCurrentUser());
+        favoritesPanel.innerHTML = Render.renderPostList(favoritePosts, users, Auth.getCurrentUser());
       }
     }
   }
@@ -166,13 +247,16 @@
 
     var editBtn = qs('#editProfileBtn');
     var followBtn = qs('#followToggleBtn');
+    var messageBtn = qs('#messageBtn');
 
     if (isSelf) {
       if (editBtn) editBtn.style.display = '';
       if (followBtn) followBtn.style.display = 'none';
+      if (messageBtn) messageBtn.style.display = 'none';
     } else {
       if (editBtn) editBtn.style.display = 'none';
       if (followBtn) followBtn.style.display = '';
+      if (messageBtn) messageBtn.style.display = '';
     }
 
     if (followBtn) {
@@ -198,12 +282,36 @@
           DataStore.followUser(me.id, profileUser.id);
         }
         var stats = computeStats(profileUser);
-        updateStatsUI(stats);
+        var visitCount = DataStore.getUserVisitCount(profileUser.id);
+        updateStatsUI(stats, visitCount);
         updateMetricsUI(profileUser, stats);
         refreshFollowBtn();
       });
 
       refreshFollowBtn();
+    }
+
+    if (messageBtn) {
+      messageBtn.addEventListener('click', function () {
+        if (!Auth.isLoggedIn()) {
+          window.alert('请先登录后再发送私信');
+          window.location.href = 'login.html';
+          return;
+        }
+        var userInfoEl = qs('#messageUserInfo');
+        if (userInfoEl) {
+          userInfoEl.innerHTML = 
+            '<div class="message-user-info__avatar">' +
+            '<img src="' + Render.escapeHTML(profileUser.avatar || '') + '" alt="头像" />' +
+            '</div>' +
+            '<div class="message-user-info__name">' + Render.escapeHTML(profileUser.nickname || '未知用户') + '</div>';
+        }
+        var modal = qs('#messageModal');
+        if (modal) {
+          modal.classList.add('is-open');
+          modal.setAttribute('aria-hidden', 'false');
+        }
+      });
     }
 
     if (editBtn) {
@@ -237,9 +345,15 @@
             bio: bio,
             avatar: avatar,
           });
+          // 更新活跃时间
+          DataStore.updateUserLastActiveTime(profileUser.id);
           renderProfileBasic(profileUser);
           var stats = computeStats(profileUser);
+          var visitCount = DataStore.getUserVisitCount(profileUser.id);
+          updateStatsUI(stats, visitCount);
           updateMetricsUI(profileUser, stats);
+          updateLastActiveUI(profileUser);
+          renderGallery(profileUser);
           var modal = qs('#editProfileModal');
           if (modal) {
             modal.classList.remove('is-open');
@@ -282,10 +396,18 @@
       return;
     }
 
+    // 记录访问量（如果不是自己访问自己的主页）
+    if (!currentUser || currentUser.id !== profileUser.id) {
+      DataStore.incrementUserVisitCount(profileUser.id);
+    }
+
     renderProfileBasic(profileUser);
     var stats = computeStats(profileUser);
-    updateStatsUI(stats);
+    var visitCount = DataStore.getUserVisitCount(profileUser.id);
+    updateStatsUI(stats, visitCount);
     updateMetricsUI(profileUser, stats);
+    updateLastActiveUI(profileUser);
+    renderGallery(profileUser);
     renderTabsContent(profileUser, stats);
     initTabs();
     initFollowAndEdit(profileUser);

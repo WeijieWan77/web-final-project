@@ -130,7 +130,8 @@
 
     function computeHotTopics() {
       var counter = {};
-      posts.forEach(function (p) {
+      // 排除群组动态
+      posts.filter(function (p) { return !p.groupId; }).forEach(function (p) {
         (p.tags || []).forEach(function (tag) {
           counter[tag] = (counter[tag] || 0) + 1;
         });
@@ -146,7 +147,8 @@
 
     function computeActiveUsers() {
       var countByUser = {};
-      posts.forEach(function (p) {
+      // 排除群组动态
+      posts.filter(function (p) { return !p.groupId; }).forEach(function (p) {
         countByUser[p.authorId] = (countByUser[p.authorId] || 0) + 1;
       });
       var active = users
@@ -159,7 +161,10 @@
       return active;
     }
 
-    var allPosts = posts.slice().sort(function (a, b) {
+    // 初始化时排除群组动态（群组动态只在群组页面显示）
+    var allPosts = posts.filter(function (p) {
+      return !p.groupId;
+    }).sort(function (a, b) {
       return b.timestamp - a.timestamp;
     });
 
@@ -167,7 +172,8 @@
     var currentKeyword = '';
 
     function filterPosts() {
-      var filtered = allPosts;
+      var filtered = allPosts; // allPosts已经在初始化时排除了群组动态
+      
       if (currentTab === 'following' && currentUser) {
         var ids = currentUser.following || [];
         filtered = filtered.filter(function (p) {
@@ -276,6 +282,42 @@
             if (span) span.textContent = updated.likes;
             actionBtn.classList.add('is-liked');
           }
+        } else if (action === 'favorite') {
+          if (!Auth.isLoggedIn()) {
+            window.alert('请先登录后再收藏动态');
+            window.location.href = 'login.html';
+            return;
+          }
+          var user = Auth.getCurrentUser();
+          var isFavorited = DataStore.toggleFavorite(user.id, postId);
+          if (isFavorited) {
+            actionBtn.classList.add('is-favorited');
+            actionBtn.querySelector('span:first-child').textContent = '⭐';
+          } else {
+            actionBtn.classList.remove('is-favorited');
+            actionBtn.querySelector('span:first-child').textContent = '☆';
+          }
+        } else if (action === 'repost') {
+          if (!Auth.isLoggedIn()) {
+            window.alert('请先登录后再转发动态');
+            window.location.href = 'login.html';
+            return;
+          }
+          var post = DataStore.getPostById(postId);
+          if (!post) return;
+          var author = DataStore.getUserById(post.authorId);
+          var originalContentEl = qs('#repostOriginalContent');
+          if (originalContentEl) {
+            originalContentEl.innerHTML = 
+              '<div class="repost-original__header">' +
+              '<img src="' + Render.escapeHTML(author.avatar || '') + '" alt="头像" class="repost-original__avatar" />' +
+              '<span class="repost-original__author">' + Render.escapeHTML(author.nickname || '未知用户') + '</span>' +
+              '</div>' +
+              '<div class="repost-original__content">' + Render.escapeHTML(post.content || '') + '</div>';
+          }
+          qs('#repostContentInput').value = '';
+          qs('#repostForm').setAttribute('data-original-post-id', postId);
+          openModal('repostModal');
         } else if (action === 'comment' || action === 'open-detail') {
           window.location.href = 'detail.html?id=' + encodeURIComponent(postId);
         }
@@ -289,6 +331,17 @@
           window.alert('请先登录后再发布动态');
           window.location.href = 'login.html';
           return;
+        }
+        // 加载用户群组列表
+        var user = Auth.getCurrentUser();
+        var groups = DataStore.getUserGroups(user.id);
+        var groupSelect = qs('#postGroupSelect');
+        if (groupSelect) {
+          var html = '<option value="">不发布到群组</option>';
+          groups.forEach(function (group) {
+            html += '<option value="' + Render.escapeHTML(group.id) + '">' + Render.escapeHTML(group.name) + '</option>';
+          });
+          groupSelect.innerHTML = html;
         }
         openModal('postModal');
       });
@@ -307,6 +360,7 @@
         var content = qs('#postContentInput').value.trim();
         var imagesRaw = qs('#postImagesInput').value;
         var visibility = qs('#postVisibilitySelect').value || 'public';
+        var groupId = qs('#postGroupSelect').value || '';
         if (!content) {
           window.alert('内容不能为空');
           return;
@@ -318,17 +372,51 @@
           })
           .filter(Boolean);
         var tags = (content.match(/#[^#\s]+/g) || []).slice(0, 5);
-        var newPost = DataStore.addPost({
+        var postData = {
           authorId: user.id,
           content: content,
           images: images,
           tags: tags,
           visibility: visibility,
-        });
+        };
+        if (groupId) {
+          postData.groupId = groupId;
+        }
+        var newPost = DataStore.addPost(postData);
+        // 更新用户活跃时间
+        DataStore.updateUserLastActiveTime(user.id);
         closeModal('postModal');
         document.getElementById('postForm').reset();
-        allPosts.unshift(newPost);
+        // 只有非群组动态才添加到allPosts（群组动态只在群组页面显示）
+        if (!newPost.groupId) {
+          allPosts.unshift(newPost);
+        }
         renderFeed();
+      });
+    }
+
+    // 转发表单处理
+    var repostForm = qs('#repostForm');
+    if (repostForm) {
+      repostForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var user = Auth.getCurrentUser();
+        if (!user) {
+          window.alert('请先登录');
+          window.location.href = 'login.html';
+          return;
+        }
+        var originalPostId = repostForm.getAttribute('data-original-post-id');
+        if (!originalPostId) return;
+        var content = qs('#repostContentInput').value.trim();
+        var result = DataStore.addRepost(user.id, originalPostId, content);
+        if (result && result.post) {
+          DataStore.updateUserLastActiveTime(user.id);
+          closeModal('repostModal');
+          allPosts.unshift(result.post);
+          renderFeed();
+          window.alert('转发成功！');
+        }
       });
     }
   }
@@ -529,6 +617,81 @@
     container.innerHTML = Render.renderPostDetail(post, author);
 
     var currentUser = Auth.getCurrentUser();
+    
+    // 转发和收藏按钮
+    var repostBtn = qs('#repostBtn');
+    var favoriteBtn = qs('#favoriteBtn');
+    
+    if (repostBtn) {
+      repostBtn.addEventListener('click', function () {
+        if (!Auth.isLoggedIn()) {
+          window.alert('请先登录后再转发动态');
+          window.location.href = 'login.html';
+          return;
+        }
+        var originalContentEl = qs('#repostOriginalContent');
+        if (originalContentEl) {
+          originalContentEl.innerHTML = 
+            '<div class="repost-original__header">' +
+            '<img src="' + Render.escapeHTML(author.avatar || '') + '" alt="头像" class="repost-original__avatar" />' +
+            '<span class="repost-original__author">' + Render.escapeHTML(author.nickname || '未知用户') + '</span>' +
+            '</div>' +
+            '<div class="repost-original__content">' + Render.escapeHTML(post.content || '') + '</div>';
+        }
+        qs('#repostContentInput').value = '';
+        qs('#repostForm').setAttribute('data-original-post-id', post.id);
+        openModal('repostModal');
+      });
+    }
+    
+    if (favoriteBtn) {
+      var isFavorited = currentUser && DataStore.isFavorite(currentUser.id, post.id);
+      if (isFavorited) {
+        favoriteBtn.textContent = '⭐ 已收藏';
+        favoriteBtn.classList.add('is-favorited');
+      }
+      favoriteBtn.addEventListener('click', function () {
+        if (!Auth.isLoggedIn()) {
+          window.alert('请先登录后再收藏动态');
+          window.location.href = 'login.html';
+          return;
+        }
+        var user = Auth.getCurrentUser();
+        var isFavoritedNow = DataStore.toggleFavorite(user.id, post.id);
+        if (isFavoritedNow) {
+          favoriteBtn.textContent = '⭐ 已收藏';
+          favoriteBtn.classList.add('is-favorited');
+        } else {
+          favoriteBtn.textContent = '☆ 收藏';
+          favoriteBtn.classList.remove('is-favorited');
+        }
+      });
+    }
+    
+    // 转发表单处理
+    var repostForm = qs('#repostForm');
+    if (repostForm) {
+      repostForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var user = Auth.getCurrentUser();
+        if (!user) {
+          window.alert('请先登录');
+          window.location.href = 'login.html';
+          return;
+        }
+        var originalPostId = repostForm.getAttribute('data-original-post-id');
+        if (!originalPostId) return;
+        var content = qs('#repostContentInput').value.trim();
+        var result = DataStore.addRepost(user.id, originalPostId, content);
+        if (result && result.post) {
+          DataStore.updateUserLastActiveTime(user.id);
+          closeModal('repostModal');
+          window.alert('转发成功！');
+          window.location.href = 'index.html';
+        }
+      });
+    }
+    
     var ownerActions = qs('#postOwnerActions');
     if (ownerActions && currentUser && currentUser.id === post.authorId) {
       ownerActions.hidden = false;
@@ -635,6 +798,8 @@
           userId: user.id,
           content: content,
         });
+        // 更新用户活跃时间
+        DataStore.updateUserLastActiveTime(user.id);
         qs('#commentContentInput').value = '';
         refreshComments();
       });

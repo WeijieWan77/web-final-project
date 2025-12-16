@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>年度回顾 - CampusLife</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="review">
+  <header class="navbar" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+    <div class="navbar__center"></div>
+    <div class="navbar__right">
+      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+      <div class="navbar__user">
+        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+          <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </button>
+        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <a href="login.html" data-auth-visible="guest">登录</a>
+          <a href="register.html" data-auth-visible="guest">注册</a>
+          <a href="profile.html" data-auth-visible="user">个人中心</a>
+          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
+          <a href="admin.html" data-auth-visible="admin">管理员后台</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main main--review">
+    <div class="review-header">
+      <h1>我的 <span id="reviewYear">2024</span> 年度回顾</h1>
+      <select id="yearSelect" class="year-select">
+        <!-- JS 渲染年份选项 -->
+      </select>
+    </div>
+
+    <div class="review-content" id="reviewContent">
+      <!-- JS 渲染年度数据 -->
+    </div>
+  </main>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/review.js"></script>
+</body>
+</html>

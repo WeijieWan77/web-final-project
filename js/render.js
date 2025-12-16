@@ -70,9 +70,24 @@
   function renderPostCard(post, author, currentUser) {
     author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: '' };
     var isLiked = false; // 点赞状态可以在将来扩展为 per-user，这里暂用样式占位
+    var isFavorited = currentUser && DataStore.isFavorite(currentUser.id, post.id);
+    var repostCount = DataStore.getRepostCount(post.id);
+    
+    // 如果是转发动态，显示原动态信息
+    var repostInfo = '';
+    if (post.isRepost && post.repostedFrom) {
+      var originalPost = DataStore.getPostById(post.repostedFrom);
+      if (originalPost) {
+        var originalAuthor = DataStore.getUserById(originalPost.authorId) || { nickname: '未知用户' };
+        repostInfo = '<div class="post-card__repost-info">' +
+                     '<span class="post-card__repost-label">🔁 转发自</span>' +
+                     '<span class="post-card__repost-author">' + escapeHTML(originalAuthor.nickname) + '</span>' +
+                     '</div>';
+      }
+    }
 
     return (
-      '<article class="card post-card" data-post-id="' +
+      '<article class="card post-card' + (post.isRepost ? ' post-card--repost' : '') + '" data-post-id="' +
       escapeHTML(post.id) +
       '">' +
       '<header class="post-card__meta">' +
@@ -86,6 +101,7 @@
       '<div class="post-card__time">' + formatTimeAgo(post.timestamp) + '</div>' +
       '</div>' +
       '</header>' +
+      repostInfo +
       '<div class="post-card__content" data-role="post-content" data-full="0">' +
       escapeHTML(post.content) +
       '</div>' +
@@ -100,6 +116,16 @@
       '</button>' +
       '<button type="button" class="post-card__action" data-action="comment" aria-label="评论">' +
       '<span>💬</span><span>评论</span>' +
+      '</button>' +
+      '<button type="button" class="post-card__action post-card__action--repost' +
+      (post.isRepost ? ' is-reposted' : '') +
+      '" data-action="repost" aria-label="转发">' +
+      '<span>🔁</span><span>' + repostCount + '</span>' +
+      '</button>' +
+      '<button type="button" class="post-card__action post-card__action--favorite' +
+      (isFavorited ? ' is-favorited' : '') +
+      '" data-action="favorite" aria-label="收藏">' +
+      '<span>' + (isFavorited ? '⭐' : '☆') + '</span><span>收藏</span>' +
       '</button>' +
       '</div>' +
       '<button type="button" class="link-button" data-action="open-detail">查看详情 &gt;</button>' +
@@ -202,6 +228,38 @@
 
   function renderPostDetail(post, author) {
     author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: '' };
+    
+    // 如果是转发动态，显示原动态信息
+    var repostInfo = '';
+    var originalContent = '';
+    if (post.isRepost && post.repostedFrom) {
+      var originalPost = DataStore.getPostById(post.repostedFrom);
+      if (originalPost) {
+        var originalAuthor = DataStore.getUserById(originalPost.authorId) || { nickname: '未知用户', avatar: '' };
+        repostInfo = '<div class="post-card__repost-info">' +
+                     '<span class="post-card__repost-label">🔁 转发自</span>' +
+                     '<a href="profile.html?userId=' + escapeHTML(originalAuthor.id || '') + '" class="post-card__repost-author">' + 
+                     escapeHTML(originalAuthor.nickname) + '</a>' +
+                     '</div>';
+        // 显示原动态的完整内容
+        originalContent = 
+          '<div class="post-card--repost post-card" style="margin-top: 12px; padding: 12px; background-color: var(--color-surface-soft); border-radius: var(--radius-md);">' +
+          '<header class="post-card__meta">' +
+          '<a class="post-card__avatar" href="profile.html?userId=' + escapeHTML(originalAuthor.id || '') + '">' +
+          '<img src="' + escapeHTML(originalAuthor.avatar || '') + '" alt="头像" />' +
+          '</a>' +
+          '<div class="post-card__info">' +
+          '<div class="post-card__author">' + escapeHTML(originalAuthor.nickname || '未知用户') + '</div>' +
+          '<div class="post-card__time">' + formatTimeAgo(originalPost.timestamp) + '</div>' +
+          '</div>' +
+          '</header>' +
+          '<div class="post-card__content">' + escapeHTML(originalPost.content || '') + '</div>' +
+          buildImagesGrid(originalPost) +
+          renderPostTags(originalPost.tags) +
+          '</div>';
+      }
+    }
+    
     return (
       '<header class="post-card__meta">' +
       '<a class="post-card__avatar" href="profile.html?userId=' +
@@ -214,9 +272,11 @@
       '<div class="post-card__time">' + formatTimeAgo(post.timestamp) + '</div>' +
       '</div>' +
       '</header>' +
+      repostInfo +
       '<div class="post-card__content post-detail__content">' + escapeHTML(post.content) + '</div>' +
       buildImagesGrid(post) +
-      renderPostTags(post.tags)
+      renderPostTags(post.tags) +
+      originalContent
     );
   }
 

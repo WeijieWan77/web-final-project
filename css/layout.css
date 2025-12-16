@@ -119,6 +119,13 @@
   gap: 20px;
 }
 
+/* 群组页面布局 */
+.main--groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 /* 注册第二步：兴趣标签与头像布局 */
 
 .auth-form--step2 {
@@ -241,5 +248,9 @@
 
   .profile-content__panel {
     grid-template-columns: 1fr;
+  }
+
+  .profile-personal__gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

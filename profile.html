@@ -22,6 +22,9 @@
       </form>
     </div>
     <div class="navbar__right">
+      <a href="groups.html" class="btn-icon" data-auth-visible="user" aria-label="群组" title="群组">👥</a>
+      <a href="checkin.html" class="btn-icon" data-auth-visible="user" aria-label="打卡签到" title="打卡签到">📅</a>
+      <a href="review.html" class="btn-icon" data-auth-visible="user" aria-label="年度回顾" title="年度回顾">📊</a>
       <button type="button" class="btn-icon" id="openPostModalFromProfileBtn" aria-label="发布动态">+</button>
       <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
         <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
@@ -59,6 +62,7 @@
         <div class="profile-hero__actions">
           <button type="button" id="editProfileBtn" class="btn-secondary" data-profile-self="true">编辑资料</button>
           <button type="button" id="followToggleBtn" class="btn-primary" data-profile-self="false">关注</button>
+          <button type="button" id="messageBtn" class="btn-secondary" data-profile-self="false">💬 私信</button>
         </div>
       </div>
       <div class="profile-hero__stats">
@@ -74,6 +78,25 @@
           <span class="profile-stat__value" id="profileLikesCount">0</span>
           <span class="profile-stat__label">获赞</span>
         </div>
+        <div class="profile-stat">
+          <span class="profile-stat__value" id="profileVisitCount">0</span>
+          <span class="profile-stat__label">访问量</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 个性化信息：活跃时间、相册墙 -->
+    <section class="profile-personal" aria-label="个性化信息">
+      <div class="profile-personal__item">
+        <span class="profile-personal__label">最近活跃：</span>
+        <span class="profile-personal__value" id="profileLastActive">--</span>
+      </div>
+      <div class="profile-personal__gallery">
+        <h3 class="profile-personal__gallery-title">相册墙</h3>
+        <div class="profile-personal__gallery-grid" id="profileGalleryGrid">
+          <!-- JS 渲染相册图片 -->
+        </div>
+        <p class="profile-personal__gallery-empty" id="profileGalleryEmpty" hidden>还没有发布过图片动态</p>
       </div>
     </section>
 
@@ -140,6 +163,32 @@
           <button type="submit" class="btn-primary">保存</button>
         </footer>
       </form>
+    </div>
+  </div>
+
+  <!-- 私信界面 -->
+  <div class="modal" id="messageModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="messageModalTitle">
+    <div class="modal__overlay" data-close-modal="messageModal"></div>
+    <div class="modal__content modal__content--message">
+      <header class="modal__header">
+        <h2 id="messageModalTitle">私信</h2>
+        <button type="button" class="modal__close" data-close-modal="messageModal" aria-label="关闭">×</button>
+      </header>
+      <div class="message-container">
+        <div class="message-user-info" id="messageUserInfo">
+          <!-- JS 渲染用户信息 -->
+        </div>
+        <div class="message-list" id="messageList">
+          <div class="message-empty">
+            <p>暂无消息记录</p>
+            <p class="message-empty__hint">这是私信功能的界面展示，实际消息功能需要后端支持</p>
+          </div>
+        </div>
+        <form id="messageForm" class="message-form">
+          <textarea id="messageInput" rows="3" placeholder="输入消息内容..." disabled></textarea>
+          <button type="submit" class="btn-primary" disabled>发送</button>
+        </form>
+      </div>
     </div>
   </div>
 

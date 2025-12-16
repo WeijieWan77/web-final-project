@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>群组 - CampusLife</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body data-page="groups">
+  <header class="navbar" aria-label="主导航">
+    <div class="navbar__left">
+      <a href="index.html" class="navbar__logo">CampusLife</a>
+    </div>
+    <div class="navbar__center"></div>
+    <div class="navbar__right">
+      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+      </button>
+      <div class="navbar__user">
+        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+          <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </button>
+        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <a href="login.html" data-auth-visible="guest">登录</a>
+          <a href="register.html" data-auth-visible="guest">注册</a>
+          <a href="profile.html" data-auth-visible="user">个人中心</a>
+          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
+          <a href="admin.html" data-auth-visible="admin">管理员后台</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main main--groups">
+    <div class="groups-header">
+      <h1>我的群组</h1>
+      <button type="button" id="createGroupBtn" class="btn-primary" data-auth-visible="user">创建群组</button>
+    </div>
+
+    <nav class="tabs" aria-label="群组筛选">
+      <button type="button" class="tab is-active" data-groups-tab="my">我的群组</button>
+      <button type="button" class="tab" data-groups-tab="all">全部群组</button>
+    </nav>
+
+    <div id="groupsContainer" class="groups-grid">
+      <!-- JS 渲染群组列表 -->
+    </div>
+
+    <div id="groupsEmpty" class="groups-empty" hidden>
+      <p>还没有加入任何群组</p>
+      <p class="groups-empty__hint">创建或加入群组，和志同道合的同学一起交流吧！</p>
+    </div>
+  </main>
+
+  <!-- 创建群组模态框 -->
+  <div class="modal" id="createGroupModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="createGroupModalTitle">
+    <div class="modal__overlay" data-close-modal="createGroupModal"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="createGroupModalTitle">创建群组</h2>
+        <button type="button" class="modal__close" data-close-modal="createGroupModal" aria-label="关闭">×</button>
+      </header>
+      <form id="createGroupForm" class="modal__body">
+        <label>
+          群组名称
+          <input type="text" id="groupNameInput" required placeholder="输入群组名称" />
+        </label>
+        <label>
+          群组简介
+          <textarea id="groupDescriptionInput" rows="3" placeholder="介绍一下这个群组..."></textarea>
+        </label>
+        <label>
+          群组头像 URL（可选）
+          <input type="url" id="groupAvatarInput" placeholder="粘贴头像链接" />
+        </label>
+        <footer class="modal__footer">
+          <button type="button" class="btn-secondary" data-close-modal="createGroupModal">取消</button>
+          <button type="submit" class="btn-primary">创建</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- 群组详情模态框 -->
+  <div class="modal" id="groupDetailModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="groupDetailModalTitle">
+    <div class="modal__overlay" data-close-modal="groupDetailModal"></div>
+    <div class="modal__content modal__content--large">
+      <header class="modal__header">
+        <h2 id="groupDetailModalTitle">群组详情</h2>
+        <button type="button" class="modal__close" data-close-modal="groupDetailModal" aria-label="关闭">×</button>
+      </header>
+      <div id="groupDetailContent" class="group-detail-content">
+        <!-- JS 渲染群组详情 -->
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/groups.js"></script>
+</body>
+</html>

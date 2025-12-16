@@ -75,6 +75,9 @@
 
     // 自动登录
     DataStore.setCurrentUserId(finalUser.id);
+    
+    // 记录用户活跃时间（注册时间）
+    DataStore.updateUserLastActiveTime(finalUser.id);
 
     result.success = true;
     result.data = finalUser;
@@ -108,6 +111,9 @@
     }
 
     DataStore.setCurrentUserId(user.id);
+    
+    // 记录用户活跃时间（登录时间）
+    DataStore.updateUserLastActiveTime(user.id);
 
     if (rememberMe) {
       DataStore.setRememberedStudentId(studentId);
