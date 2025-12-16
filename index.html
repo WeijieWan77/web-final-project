@@ -51,6 +51,56 @@
     </div>
   </header>
 
+  <!-- Hero / Bento Grid -->
+  <section class="hero">
+    <div class="hero__glow"></div>
+    <div class="hero__grid" id="heroBentoGrid">
+      <div class="hero__card hero__card--headline">
+        <p class="hero__eyebrow">校园生活 · 实时发生</p>
+        <h1>一起探索校园的<br />每一个精彩瞬间</h1>
+        <p class="hero__lead">加入社团、发现美食、寻找同好、记录成长。CampusLife 让每个角落都闪光。</p>
+        <div class="hero__actions">
+          <a href="#postFeedContainer" class="btn-primary hero__cta">开始探索</a>
+          <button type="button" class="btn-secondary hero__ghost" id="heroExploreBtn">随机看看</button>
+        </div>
+      </div>
+
+      <div class="hero__card hero__card--sm" data-hero-card data-offset-x="-140" data-offset-y="-80">
+        <span class="hero__pill">社团</span>
+        <h3>街舞社招新</h3>
+        <p>周五晚 19:00 / 体育馆</p>
+      </div>
+
+      <div class="hero__card hero__card--md" data-hero-card data-offset-x="120" data-offset-y="-90">
+        <span class="hero__pill">美食</span>
+        <h3>夜宵地图</h3>
+        <p>宿舍楼下的深夜食堂，打卡 24 家。</p>
+      </div>
+
+      <div class="hero__card hero__card--lg hero__card--image" data-hero-card data-offset-x="-120" data-offset-y="120">
+        <div class="hero__img hero__img--1" role="presentation"></div>
+        <div class="hero__overlay">操场日落跑步局</div>
+      </div>
+
+      <div class="hero__card hero__card--sm hero__card--image" data-hero-card data-offset-x="140" data-offset-y="110">
+        <div class="hero__img hero__img--2" role="presentation"></div>
+        <div class="hero__overlay">图书馆自习</div>
+      </div>
+
+      <div class="hero__card hero__card--md" data-hero-card data-offset-x="-160" data-offset-y="40">
+        <span class="hero__pill">学习</span>
+        <h3>期末复习圈</h3>
+        <p>共享笔记 / 互助答疑 / 线上打卡</p>
+      </div>
+
+      <div class="hero__card hero__card--sm" data-hero-card data-offset-x="160" data-offset-y="-40">
+        <span class="hero__pill">活动</span>
+        <h3>露天电影夜</h3>
+        <p>周末草坪，一起看老电影</p>
+      </div>
+    </div>
+  </section>
+
   <!-- 主内容区 -->
   <main class="main main--home">
     <!-- 首页左侧：动态流 -->
@@ -150,6 +200,7 @@
   <script src="js/data-store.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/render.js"></script>
+  <script src="js/hero-animation.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
