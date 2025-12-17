@@ -280,49 +280,82 @@
   }
 
   function renderHotTopics(topics) {
-    return topics
-      .slice(0, 10)
-      .map(function (t, index) {
-        return (
-          '<li class="hot-topic-item" data-topic="' +
-          escapeHTML(t.tag) +
-          '">' +
-          '<span class="hot-topic-item__rank">#' +
-          (index + 1) +
-          '</span>' +
-          '<span class="hot-topic-item__name">' +
-          escapeHTML(t.tag) +
-          '</span>' +
-          '<span class="hot-topic-item__count">' +
-          t.count +
-          '</span>' +
-          '</li>'
-        );
-      })
-      .join('');
+    // 标签云样式：根据热度设置不同样式
+    return (
+      '<div class="hot-topics-cloud">' +
+      topics
+        .slice(0, 15)
+        .map(function (t, index) {
+          var isHot = index < 3;
+          var chipClass = isHot ? 'hot-topic-chip hot-topic-chip--hot' : 'hot-topic-chip';
+          return (
+            '<span class="' +
+            chipClass +
+            '" data-topic="' +
+            escapeHTML(t.tag) +
+            '">' +
+            escapeHTML(t.tag) +
+            '<span class="hot-topic-chip__count">' +
+            t.count +
+            '</span>' +
+            '</span>'
+          );
+        })
+        .join('') +
+      '</div>'
+    );
   }
 
   function renderActiveUsersList(users) {
-    return users
-      .slice(0, 8)
-      .map(function (u) {
-        return (
-          '<li class="active-user-item" data-user-id="' +
-          escapeHTML(u.id) +
-          '">' +
-          '<div class="active-user-item__avatar">' +
-          '<img src="' + escapeHTML(u.avatar || '') + '" alt="头像" />' +
-          '</div>' +
-          '<div class="active-user-item__info">' +
-          '<div class="active-user-item__name">' + escapeHTML(u.nickname || '') + '</div>' +
-          '<div class="active-user-item__tags">' +
-          (Array.isArray(u.tags) ? u.tags.slice(0, 2).map(escapeHTML).join(' ') : '') +
-          '</div>' +
-          '</div>' +
-          '</li>'
-        );
-      })
-      .join('');
+    // 排行榜样式：前三名有特殊标识
+    return (
+      '<div class="active-users-rank">' +
+      users
+        .slice(0, 8)
+        .map(function (u, index) {
+          var rankClass = '';
+          var crown = '';
+          if (index === 0) {
+            rankClass = 'active-user-rank-item--gold';
+            crown = '<span class="active-user-rank-item__crown">👑</span>';
+          } else if (index === 1) {
+            rankClass = 'active-user-rank-item--silver';
+            crown = '<span class="active-user-rank-item__crown">🥈</span>';
+          } else if (index === 2) {
+            rankClass = 'active-user-rank-item--bronze';
+            crown = '<span class="active-user-rank-item__crown">🥉</span>';
+          }
+          var postCount = (u.postCount || 0);
+          return (
+            '<div class="active-user-rank-item ' +
+            rankClass +
+            '" data-user-id="' +
+            escapeHTML(u.id) +
+            '">' +
+            '<div class="active-user-rank-item__rank">' +
+            (index + 1) +
+            '</div>' +
+            '<div class="active-user-rank-item__avatar">' +
+            '<img src="' +
+            escapeHTML(u.avatar || '') +
+            '" alt="头像" />' +
+            crown +
+            '</div>' +
+            '<div class="active-user-rank-item__info">' +
+            '<div class="active-user-rank-item__name">' +
+            escapeHTML(u.nickname || '') +
+            '</div>' +
+            '<div class="active-user-rank-item__meta">' +
+            postCount +
+            ' 条动态' +
+            '</div>' +
+            '</div>' +
+            '</div>'
+          );
+        })
+        .join('') +
+      '</div>'
+    );
   }
 
   function renderPostDetail(post, author) {

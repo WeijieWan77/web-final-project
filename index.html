@@ -17,6 +17,39 @@
     </div>
   </div>
 
+  <!-- 左侧悬浮导航 Dock -->
+  <aside class="app-dock" aria-label="主导航快捷栏">
+    <div class="app-dock__inner">
+      <div class="app-dock__top">
+        <div class="app-dock__logo">CL</div>
+        <nav class="app-dock__nav">
+          <a href="index.html" class="app-dock__item app-dock__item--active" title="首页">
+            <span class="app-dock__icon">🏠</span>
+            <span class="app-dock__label">首页</span>
+          </a>
+          <a href="groups.html" class="app-dock__item" data-auth-visible="user" title="社团集市">
+            <span class="app-dock__icon">👥</span>
+            <span class="app-dock__label">社团集市</span>
+          </a>
+          <a href="checkin.html" class="app-dock__item" data-auth-visible="user" title="每日打卡">
+            <span class="app-dock__icon">📅</span>
+            <span class="app-dock__label">每日打卡</span>
+          </a>
+          <a href="review.html" class="app-dock__item" data-auth-visible="user" title="年度回顾">
+            <span class="app-dock__icon">📊</span>
+            <span class="app-dock__label">年度回顾</span>
+          </a>
+        </nav>
+      </div>
+      <div class="app-dock__bottom">
+        <a href="profile.html" class="app-dock__item app-dock__item--profile" data-auth-visible="user" title="个人中心">
+          <span class="app-dock__icon">🧑</span>
+          <span class="app-dock__label">个人中心</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
   <!-- 顶部导航栏 -->
   <header class="navbar" aria-label="主导航">
     <div class="navbar__left">
@@ -106,11 +139,38 @@
     <!-- 首页左侧：动态流 -->
     <section class="feed" aria-label="动态流">
       <header class="feed__header">
-        <nav class="tabs" aria-label="动态筛选">
+        <nav class="tabs tabs--pill" aria-label="动态筛选">
           <button type="button" class="tab is-active" data-feed-tab="recommend">推荐</button>
           <button type="button" class="tab" data-feed-tab="following">关注</button>
         </nav>
       </header>
+      <!-- 横向 Bento 推荐位：热门社团 / 活动 / 打卡 -->
+      <section class="feed-highlight-row" aria-label="本周推荐">
+        <div class="feed-highlight__title-wrap">
+          <h2 class="feed-highlight__title">本周校园亮点</h2>
+          <p class="feed-highlight__subtitle">发现正在发生的活动、社团与打卡挑战</p>
+        </div>
+        <div class="feed-highlight__scroller">
+          <article class="highlight-card highlight-card--event">
+            <div class="highlight-card__eyebrow">本周活动</div>
+            <h3 class="highlight-card__title">操场日落跑步局</h3>
+            <p class="highlight-card__meta">周五 · 18:30 · 东区操场</p>
+            <p class="highlight-card__desc">加入夜跑小队，一起完成 3 公里打卡，解锁限定徽章。</p>
+          </article>
+          <article class="highlight-card highlight-card--group">
+            <div class="highlight-card__eyebrow">热门社团</div>
+            <h3 class="highlight-card__title">街舞社 · 夏季公开课</h3>
+            <p class="highlight-card__meta">本周已有 48 人报名</p>
+            <p class="highlight-card__desc">零基础也能上手的 freestyle 体验课，报名即送社团限定贴纸。</p>
+          </article>
+          <article class="highlight-card highlight-card--checkin">
+            <div class="highlight-card__eyebrow">打卡挑战</div>
+            <h3 class="highlight-card__title">期末自习 7 日连击</h3>
+            <p class="highlight-card__meta">参与人数：132</p>
+            <p class="highlight-card__desc">在图书馆或自习室完成 7 天签到，获得「不卷不舒服」称号。</p>
+          </article>
+        </div>
+      </section>
       <div id="postFeedContainer" class="feed__list" aria-live="polite">
         <!-- JS 渲染动态卡片 -->
       </div>
@@ -120,16 +180,68 @@
     <aside class="sidebar" aria-label="侧边信息">
       <section class="sidebar-section" aria-labelledby="hotTopicsTitle">
         <h2 id="hotTopicsTitle" class="sidebar-section__title">热门话题榜</h2>
-        <ul id="hotTopicsList" class="sidebar-section__list">
-          <!-- JS 渲染热门话题 -->
-        </ul>
+        <div id="hotTopicsList">
+          <!-- JS 渲染热门话题标签云 -->
+        </div>
       </section>
 
       <section class="sidebar-section" aria-labelledby="activeUsersTitle">
         <h2 id="activeUsersTitle" class="sidebar-section__title">活跃用户推荐</h2>
-        <ul id="activeUsersList" class="sidebar-section__list">
-          <!-- JS 渲染活跃用户 -->
-        </ul>
+        <div id="activeUsersList">
+          <!-- JS 渲染活跃用户排行榜 -->
+        </div>
+      </section>
+
+      <!-- 迷你日历 Widget -->
+      <section class="sidebar-widget widget-calendar" aria-label="迷你日历">
+        <header class="widget-calendar__header">
+          <div class="widget-calendar__month">12 月</div>
+          <div class="widget-calendar__hint">考试周 · 别忘了复习</div>
+        </header>
+        <div class="widget-calendar__grid">
+          <span class="widget-calendar__day is-muted">一</span>
+          <span class="widget-calendar__day is-muted">二</span>
+          <span class="widget-calendar__day is-muted">三</span>
+          <span class="widget-calendar__day is-muted">四</span>
+          <span class="widget-calendar__day is-muted">五</span>
+          <span class="widget-calendar__day is-muted">六</span>
+          <span class="widget-calendar__day is-muted">日</span>
+          <span class="widget-calendar__cell is-empty"></span>
+          <span class="widget-calendar__cell">1</span>
+          <span class="widget-calendar__cell">2</span>
+          <span class="widget-calendar__cell is-event">3</span>
+          <span class="widget-calendar__cell">4</span>
+          <span class="widget-calendar__cell">5</span>
+          <span class="widget-calendar__cell">6</span>
+          <span class="widget-calendar__cell is-today">7</span>
+          <span class="widget-calendar__cell">8</span>
+          <span class="widget-calendar__cell is-event">9</span>
+          <span class="widget-calendar__cell">10</span>
+          <span class="widget-calendar__cell">11</span>
+          <span class="widget-calendar__cell">12</span>
+          <span class="widget-calendar__cell">13</span>
+          <span class="widget-calendar__cell">14</span>
+        </div>
+      </section>
+
+      <!-- 今日天气 / 心情指数 Widget -->
+      <section class="sidebar-widget widget-weather" aria-label="今日心情与天气">
+        <div class="widget-weather__icon">🌤️</div>
+        <div class="widget-weather__body">
+          <div class="widget-weather__title">今天适合在图书馆发呆</div>
+          <div class="widget-weather__meta">22℃ · 微风 · 空调自习室刚刚好</div>
+        </div>
+      </section>
+
+      <!-- 社团 / 活动海报 Widget -->
+      <section class="sidebar-widget widget-poster" aria-label="社团活动海报">
+        <div class="widget-poster__image">
+          <div class="widget-poster__overlay">
+            <div class="widget-poster__eyebrow">本周舞台</div>
+            <div class="widget-poster__title">吉他社 · 草地不插电音乐会</div>
+            <div class="widget-poster__meta">周六 19:30 · 西区草坪</div>
+          </div>
+        </div>
       </section>
     </aside>
   </main>

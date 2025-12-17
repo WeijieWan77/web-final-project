@@ -32,7 +32,18 @@
 .main--home {
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(260px, var(--sidebar-width));
-  gap: 18px;
+  gap: 56px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 32px;
+}
+
+/* 首页在桌面端为左侧 Dock 预留空间，形成应用式布局 */
+@media (min-width: 1100px) {
+  body[data-page='index'] .hero,
+  body[data-page='index'] .main--home {
+    padding-left: 96px;
+  }
 }
 
 .feed {
@@ -51,27 +62,159 @@
   gap: 12px;
 }
 
+/* 首页横向 Bento 推荐位 */
+.feed-highlight-row {
+  margin: 12px 0 18px;
+  padding: 14px 16px 16px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 0 0, rgba(59, 130, 246, 0.16), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(244, 114, 182, 0.22), transparent 55%),
+    rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+.feed-highlight__title-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.feed-highlight__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.feed-highlight__subtitle {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.feed-highlight__scroller {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 2px 2px;
+  scroll-snap-type: x mandatory;
+}
+
+.feed-highlight__scroller::-webkit-scrollbar {
+  height: 6px;
+}
+
+.feed-highlight__scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
+}
+
+.highlight-card {
+  min-width: 220px;
+  max-width: 260px;
+  scroll-snap-align: start;
+  border-radius: 16px;
+  padding: 12px 12px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  position: relative;
+  overflow: hidden;
+}
+
+.highlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.6), transparent 55%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.highlight-card__eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+
+.highlight-card__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.highlight-card__meta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.highlight-card__desc {
+  font-size: 12px;
+  color: var(--color-text-main);
+}
+
+.highlight-card--event {
+  background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%),
+    rgba(15, 23, 42, 0.96);
+  color: #e5e7eb;
+}
+
+.highlight-card--group {
+  background: radial-gradient(circle at 100% 0, rgba(244, 114, 182, 0.3), transparent 55%),
+    rgba(30, 64, 175, 0.96);
+  color: #e5e7eb;
+}
+
+.highlight-card--checkin {
+  background: radial-gradient(circle at 0 100%, rgba(52, 211, 153, 0.3), transparent 55%),
+    rgba(8, 47, 73, 0.96);
+  color: #e5e7eb;
+}
+
+.highlight-card--event .highlight-card__meta,
+.highlight-card--group .highlight-card__meta,
+.highlight-card--checkin .highlight-card__meta {
+  color: rgba(226, 232, 240, 0.85);
+}
+
+@media (max-width: 720px) {
+  .feed-highlight-row {
+    margin: 8px 0 14px;
+    padding: 12px 10px 12px;
+  }
+  .highlight-card {
+    min-width: 200px;
+  }
+}
+
 .sidebar {
   position: sticky;
-  top: calc(var(--navbar-height) + 10px);
+  top: calc(var(--navbar-height) + 40px);
   height: fit-content;
+  max-height: calc(100vh - var(--navbar-height) - 60px);
+  overflow-y: auto;
 }
 
-/* 动态卡片九宫格布局示例 */
-
-.post-card__images-grid--single {
-  grid-template-columns: 1fr;
+.sidebar::-webkit-scrollbar {
+  width: 6px;
 }
 
-.post-card__images-grid--multi {
-  grid-template-columns: repeat(3, 1fr);
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-subtle);
+  border-radius: 3px;
 }
 
-.post-card__images-grid img {
-  width: 100%;
-  border-radius: var(--radius-md);
-  object-fit: cover;
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-muted);
 }
+
+/* 动态卡片图片布局已在 components.css 中定义 */
 
 /* 详情页布局 */
 
@@ -312,11 +455,20 @@
 
   .main--home {
     grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    max-width: 100%;
   }
 
   .sidebar {
     position: static;
     order: -1;
+    max-height: none;
+  }
+  
+  body[data-page='index'] .navbar {
+    margin: 0 12px;
+    top: 12px;
+    border-radius: 16px;
   }
 
   .main--profile {
@@ -342,7 +494,26 @@
 
 @media (max-width: 720px) {
   .navbar {
-    padding: 0 10px;
+    padding: 0 16px;
+    height: 56px;
+  }
+  
+  body[data-page='index'] .navbar {
+    margin: 0 8px;
+    top: 8px;
+  }
+  
+  .main--home {
+    padding: 12px;
+  }
+  
+  .card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+  
+  .post-card__images-grid--multi {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .navbar__center {

@@ -208,7 +208,45 @@
         listEl.innerHTML = '<p style="padding: 12px; color: #999;">暂时没有可展示的动态。</p>';
         return;
       }
-      listEl.innerHTML = Render.renderPostList(filtered, users, currentUser);
+      // 显示骨架屏
+      listEl.innerHTML = '<div class="feed-skeleton">' +
+        Array(3).fill(0).map(function() {
+          return '<div class="skeleton-post-card">' +
+            '<div class="skeleton-post-card__header">' +
+            '<div class="skeleton-avatar"></div>' +
+            '<div class="skeleton-text" style="width: 120px; height: 16px;"></div>' +
+            '</div>' +
+            '<div class="skeleton-text" style="width: 100%; height: 60px; margin-top: 12px;"></div>' +
+            '<div class="skeleton-image" style="width: 100%; height: 200px; margin-top: 12px;"></div>' +
+            '</div>';
+        }).join('') +
+        '</div>';
+      // 延迟渲染真实内容，模拟加载
+      setTimeout(function() {
+        listEl.innerHTML = Render.renderPostList(filtered, users, currentUser);
+        // 添加鼠标跟随光斑效果
+        initCardGlowEffect();
+      }, 300);
+    }
+    
+    // 鼠标跟随光斑效果
+    function initCardGlowEffect() {
+      var cards = qsa('.card');
+      cards.forEach(function(card) {
+        card.addEventListener('mousemove', function(e) {
+          var rect = card.getBoundingClientRect();
+          var x = ((e.clientX - rect.left) / rect.width) * 100;
+          var y = ((e.clientY - rect.top) / rect.height) * 100;
+          card.style.setProperty('--mouse-x', x + '%');
+          card.style.setProperty('--mouse-y', y + '%');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          // 鼠标离开时，光斑淡出
+          card.style.setProperty('--mouse-x', '50%');
+          card.style.setProperty('--mouse-y', '50%');
+        });
+      });
     }
 
     renderFeed();
@@ -217,16 +255,36 @@
     var hotTopicsList = qs('#hotTopicsList');
     if (hotTopicsList) {
       hotTopicsList.innerHTML = Render.renderHotTopics(hotTopics);
+      // 点击话题标签进行搜索
+      hotTopicsList.addEventListener('click', function (e) {
+        var chip = e.target.closest('.hot-topic-chip');
+        if (chip) {
+          var topic = chip.getAttribute('data-topic');
+          if (topic && searchInput) {
+            searchInput.value = topic.replace('#', '');
+            currentKeyword = topic.replace('#', '');
+            renderFeed();
+          }
+        }
+      });
     }
 
     var activeUsers = computeActiveUsers();
+    // 为活跃用户添加 postCount 属性
+    activeUsers.forEach(function(user) {
+      var count = 0;
+      allPosts.forEach(function(p) {
+        if (p.authorId === user.id) count++;
+      });
+      user.postCount = count;
+    });
     var activeUsersList = qs('#activeUsersList');
     if (activeUsersList) {
       activeUsersList.innerHTML = Render.renderActiveUsersList(activeUsers);
       activeUsersList.addEventListener('click', function (e) {
-        var li = e.target.closest('.active-user-item');
-        if (li) {
-          var userId = li.getAttribute('data-user-id');
+        var item = e.target.closest('.active-user-rank-item');
+        if (item) {
+          var userId = item.getAttribute('data-user-id');
           if (userId) {
             window.location.href = 'profile.html?userId=' + encodeURIComponent(userId);
           }
@@ -234,6 +292,25 @@
       });
     }
 
+    // Tab 切换逻辑 - 添加流动背景效果
+    var tabsContainer = qs('.tabs');
+    var tabsPill = tabsContainer && tabsContainer.classList.contains('tabs--pill') ? tabsContainer : null;
+    
+    function updateTabBackground(activeBtn) {
+      if (!tabsPill) return;
+      var tabs = qsa('.tab', tabsPill);
+      var activeIndex = tabs.indexOf(activeBtn);
+      if (activeIndex === -1) return;
+      
+      var tabWidth = activeBtn.offsetWidth;
+      var tabLeft = activeBtn.offsetLeft;
+      var background = tabsPill.querySelector('::before');
+      
+      // 使用 CSS 变量动态调整背景位置
+      tabsPill.style.setProperty('--active-tab-left', tabLeft + 'px');
+      tabsPill.style.setProperty('--active-tab-width', tabWidth + 'px');
+    }
+    
     qsa('.tabs [data-feed-tab]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var tab = btn.getAttribute('data-feed-tab');
@@ -245,9 +322,16 @@
         qsa('.tabs .tab').forEach(function (b) {
           b.classList.toggle('is-active', b === btn);
         });
+        updateTabBackground(btn);
         renderFeed();
       });
     });
+    
+    // 初始化时设置第一个tab的背景位置
+    var firstActiveTab = qs('.tabs .tab.is-active');
+    if (firstActiveTab && tabsPill) {
+      updateTabBackground(firstActiveTab);
+    }
 
     var searchForm = qs('.navbar__search');
     var searchInput = qs('#globalSearchInput');
@@ -280,7 +364,16 @@
           if (updated) {
             var span = actionBtn.querySelector('span:nth-child(2)');
             if (span) span.textContent = updated.likes;
+            // 添加点赞动画
             actionBtn.classList.add('is-liked');
+            // 触发动画
+            var icon = actionBtn.querySelector('span:first-child');
+            if (icon) {
+              icon.style.animation = 'none';
+              setTimeout(function() {
+                icon.style.animation = 'likeBounce 0.5s ease';
+              }, 10);
+            }
           }
         } else if (action === 'favorite') {
           if (!Auth.isLoggedIn()) {
