@@ -12,25 +12,16 @@ body[data-page='review'] {
 
 .navbar {
   position: sticky;
-  top: 20px;
+  top: 0px;
   z-index: 100;
   height: var(--navbar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 20px;
   margin: 0 auto;
-  max-width: 90%;
+  max-width: 88%;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-radius: calc(var(--navbar-height) / 2);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 8px 32px rgba(15, 23, 42, 0.08),
-    0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 -1px 0 rgba(255, 255, 255, 0.3) inset;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -83,11 +74,6 @@ body[data-theme='dark'] .navbar {
   font-size: 18px;
 }
 
-/* 首页：弱化顶部导航，主要承担搜索与用户入口 */
-body[data-page='index'] .navbar__left {
-  display: none;
-}
-
 body[data-page='index'] .navbar__right > .btn-icon {
   display: none;
 }
@@ -100,7 +86,7 @@ body[data-page='index'] #themeToggleBtn {
 
 .app-dock {
   position: fixed;
-  top: 80px;
+  top: 100px;
   bottom: 24px;
   left: 16px;
   width: 80px;
@@ -260,7 +246,7 @@ body[data-page='index'] #themeToggleBtn {
 .navbar__search {
   display: flex;
   align-items: center;
-  max-width: 480px;
+  max-width: 600px;
   width: 100%;
   background-color: var(--color-input-bg);
   border-radius: var(--radius-pill);
@@ -896,7 +882,8 @@ body[data-theme='dark'] .top-marquee {
   margin-top: 12px;
   margin-left: -20px;
   margin-right: -20px;
-  margin-bottom: -20px;
+  /* 避免与下方标签/内容发生重叠，去掉负的底部外边距 */
+  margin-bottom: 0;
   display: grid;
   gap: 0;
   border-radius: 0 0 24px 24px;
