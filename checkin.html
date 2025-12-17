@@ -35,37 +35,66 @@
   </header>
 
   <main class="main main--checkin">
-    <div class="checkin-header">
-      <h1>每日打卡</h1>
-      <div class="checkin-stats">
-        <div class="checkin-stat">
-          <span class="checkin-stat__value" id="consecutiveDays">0</span>
-          <span class="checkin-stat__label">连续签到</span>
-        </div>
-        <div class="checkin-stat">
-          <span class="checkin-stat__value" id="totalCheckins">0</span>
-          <span class="checkin-stat__label">总签到数</span>
+    <!-- 顶部：荣耀时刻 -->
+    <section class="streak-hero" aria-label="连续签到成就">
+      <div class="streak-hero__icon">🔥</div>
+      <div class="streak-hero__content">
+        <p class="streak-hero__eyebrow">荣耀时刻 · Habit Streak</p>
+        <h1 class="streak-hero__title"><span id="consecutiveDays">0</span> 天</h1>
+        <p class="streak-hero__subtitle" id="streakMessage">坚持从今天开始</p>
+        <div class="streak-hero__meta">
+          <div>
+            <div class="streak-hero__label">总签到</div>
+            <div class="streak-hero__value" id="totalCheckins">0</div>
+          </div>
+          <div>
+            <div class="streak-hero__label">本月已签</div>
+            <div class="streak-hero__value" id="monthCheckins">0</div>
+          </div>
+          <div>
+            <div class="streak-hero__label">上次签到</div>
+            <div class="streak-hero__value" id="lastCheckinText">--</div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="checkin-card" id="checkinCard">
-      <div class="checkin-card__date" id="checkinDate"></div>
-      <div class="checkin-card__status" id="checkinStatus">
-        <!-- JS 渲染签到状态 -->
+    <!-- 中部：日历热力图 + 巨型签到按钮 -->
+    <section class="checkin-board" aria-label="签到日历">
+      <header class="checkin-board__header">
+        <div>
+          <p class="checkin-board__label">本月签到日历</p>
+          <h2 class="checkin-board__title" id="calendarMonthLabel">--</h2>
+        </div>
+        <div class="checkin-legend">
+          <span class="legend-dot legend-dot--done"></span><span>已签到</span>
+          <span class="legend-dot legend-dot--today"></span><span>今天</span>
+          <span class="legend-dot legend-dot--miss"></span><span>未签到</span>
+        </div>
+      </header>
+
+      <div id="checkinCalendar" class="checkin-calendar" aria-label="日历">
+        <!-- JS 渲染日历格子 -->
       </div>
-      <form id="checkinForm" class="checkin-form">
-        <textarea id="checkinContentInput" rows="3" placeholder="记录今天的心情或计划..."></textarea>
-        <button type="submit" id="checkinBtn" class="btn-primary btn-primary--large">签到</button>
-      </form>
-    </div>
 
-    <div class="checkin-history">
-      <h2>签到历史</h2>
-      <div id="checkinHistoryList" class="checkin-history-list">
+      <div class="checkin-action">
+        <form id="checkinForm" class="checkin-form">
+          <textarea id="checkinContentInput" rows="3" placeholder="记录今天的心情或计划..."></textarea>
+          <button type="submit" id="checkinBtn" class="btn-checkin-pulse">立即签到</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 底部：签到时间轴 -->
+    <section class="checkin-history">
+      <div class="checkin-history__header">
+        <h2>签到时间轴</h2>
+        <p class="checkin-history__hint">最近 30 条记录</p>
+      </div>
+      <div id="checkinHistoryList" class="checkin-timeline">
         <!-- JS 渲染签到历史 -->
       </div>
-    </div>
+    </section>
   </main>
 
   <script src="js/data-store.js"></script>

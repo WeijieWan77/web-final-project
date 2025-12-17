@@ -34,17 +34,26 @@
     </div>
   </header>
 
-  <main class="main main--review">
-    <div class="review-header">
-      <h1>我的 <span id="reviewYear">2024</span> 年度回顾</h1>
-      <select id="yearSelect" class="year-select">
-        <!-- JS 渲染年份选项 -->
-      </select>
+  <main class="main main--review review-snap">
+    <!-- 顶部悬浮选择器（不打断沉浸感） -->
+    <div class="review-floating-controls">
+      <label class="review-select">
+        <span>年份</span>
+        <select id="yearSelect" aria-label="选择年份">
+          <!-- JS 渲染年份选项 -->
+        </select>
+      </label>
     </div>
 
-    <div class="review-content" id="reviewContent">
-      <!-- JS 渲染年度数据 -->
-    </div>
+    <!-- 滚屏叙事容器 -->
+    <section id="reviewScroller" class="review-scroll-container" aria-label="年度回顾滚动故事">
+      <!-- JS 渲染各个场景 -->
+      <div class="review-scroll-skeleton">
+        <div class="skeleton-slide"></div>
+        <div class="skeleton-slide"></div>
+        <div class="skeleton-slide"></div>
+      </div>
+    </section>
   </main>
 
   <script src="js/data-store.js"></script>

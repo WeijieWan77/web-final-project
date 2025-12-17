@@ -27,32 +27,10 @@
     return hours + ':' + minutes;
   }
 
-  function renderCheckinStatus(hasCheckedIn, consecutiveDays) {
-    var statusEl = qs('#checkinStatus');
-    if (!statusEl) return;
-    
-    if (hasCheckedIn) {
-      statusEl.innerHTML = 
-        '<div class="checkin-status checkin-status--success">' +
-        '<span class="checkin-status__icon">✓</span>' +
-        '<span class="checkin-status__text">今日已签到</span>' +
-        '<span class="checkin-status__consecutive">连续 ' + consecutiveDays + ' 天</span>' +
-        '</div>';
-      var form = qs('#checkinForm');
-      var btn = qs('#checkinBtn');
-      if (form) form.style.display = 'none';
-      if (btn) btn.disabled = true;
-    } else {
-      statusEl.innerHTML = 
-        '<div class="checkin-status checkin-status--pending">' +
-        '<span class="checkin-status__icon">📅</span>' +
-        '<span class="checkin-status__text">今日未签到</span>' +
-        '</div>';
-      var form = qs('#checkinForm');
-      var btn = qs('#checkinBtn');
-      if (form) form.style.display = '';
-      if (btn) btn.disabled = false;
-    }
+  function getDateKey(ts) {
+    var d = new Date(ts);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
   }
 
   function renderCheckinHistory(checkins) {
@@ -79,19 +57,93 @@
     listEl.innerHTML = html;
   }
 
-  function updateStats(userId) {
-    var checkins = DataStore.getUserCheckins(userId);
+  function renderStreakHeader(checkins) {
     var consecutiveDays = DataStore.calculateConsecutiveDays(checkins);
-    
     var consecutiveEl = qs('#consecutiveDays');
     var totalEl = qs('#totalCheckins');
-    
+    var monthEl = qs('#monthCheckins');
+    var lastTextEl = qs('#lastCheckinText');
+    var streakMsg = qs('#streakMessage');
+
     if (consecutiveEl) consecutiveEl.textContent = consecutiveDays;
     if (totalEl) totalEl.textContent = checkins.length;
-    
-    var hasCheckedIn = DataStore.hasCheckedInToday(userId);
-    renderCheckinStatus(hasCheckedIn, consecutiveDays);
-    
+
+    var now = new Date();
+    var currentMonth = now.getMonth();
+    var monthCount = checkins.filter(function (c) {
+      var d = new Date(c.timestamp);
+      return d.getMonth() === currentMonth && d.getFullYear() === now.getFullYear();
+    }).length;
+    if (monthEl) monthEl.textContent = monthCount;
+
+    if (checkins.length > 0 && lastTextEl) {
+      var last = checkins[0];
+      lastTextEl.textContent = formatDate(last.timestamp);
+    } else if (lastTextEl) {
+      lastTextEl.textContent = '未签到';
+    }
+
+    if (streakMsg) {
+      if (consecutiveDays >= 10) streakMsg.textContent = '势不可挡！你已经连续坚持了 ' + consecutiveDays + ' 天！';
+      else if (consecutiveDays >= 5) streakMsg.textContent = '保持节奏，前方还有更多惊喜！';
+      else streakMsg.textContent = '坚持从今天开始，打卡赢下一次成长！';
+    }
+  }
+
+  function renderCalendar(checkins) {
+    var calendarEl = qs('#checkinCalendar');
+    var monthLabel = qs('#calendarMonthLabel');
+    if (!calendarEl) return;
+
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth();
+
+    var firstDay = new Date(year, month, 1);
+    var startWeekday = firstDay.getDay(); // 0-6
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // 建立一个哈希表，标记当月哪些天签到
+    var checkinSet = {};
+    checkins.forEach(function (c) {
+      var d = new Date(c.timestamp);
+      if (d.getMonth() === month && d.getFullYear() === year) {
+        checkinSet[d.getDate()] = true;
+      }
+    });
+
+    var cells = [];
+    // 前导空白
+    for (var i = 0; i < startWeekday; i++) {
+      cells.push('<div class="calendar-day calendar-day--empty" aria-hidden="true"></div>');
+    }
+
+    for (var day = 1; day <= daysInMonth; day++) {
+      var isToday = day === now.getDate();
+      var isDone = !!checkinSet[day];
+      var cls = 'calendar-day';
+      if (isDone) cls += ' calendar-day--done';
+      else cls += ' calendar-day--miss';
+      if (isToday) cls += ' calendar-day--today';
+      cells.push('<div class="' + cls + '" aria-label="日期 ' + day + '">' + day + '</div>');
+    }
+
+    calendarEl.innerHTML = cells.join('');
+
+    if (monthLabel) {
+      monthLabel.textContent = year + ' 年 ' + (month + 1) + ' 月';
+    }
+  }
+
+  function renderAll(userId) {
+    var checkins = DataStore.getUserCheckins(userId);
+    // 按时间倒序
+    checkins.sort(function (a, b) {
+      return b.timestamp - a.timestamp;
+    });
+
+    renderStreakHeader(checkins);
+    renderCalendar(checkins);
     renderCheckinHistory(checkins);
   }
 
@@ -114,12 +166,13 @@
       dateEl.textContent = formatDate(today.getTime()) + ' ' + weekdays[today.getDay()];
     }
     
-    // 更新统计数据
-    updateStats(currentUser.id);
+    // 渲染数据
+    renderAll(currentUser.id);
     
     // 签到表单
     var form = qs('#checkinForm');
-    if (form) {
+    var btn = qs('#checkinBtn');
+    if (form && btn) {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         
@@ -132,9 +185,16 @@
         var result = DataStore.addCheckin(currentUser.id, content);
         
         if (result.success) {
-          window.alert('签到成功！连续签到 ' + result.consecutiveDays + ' 天');
+          // 按钮动画反馈
+          btn.classList.add('is-success');
+          btn.textContent = '✓ 已签到';
+          setTimeout(function () {
+            btn.classList.remove('is-success');
+            btn.textContent = '立即签到';
+          }, 1200);
+
           qs('#checkinContentInput').value = '';
-          updateStats(currentUser.id);
+          renderAll(currentUser.id);
           DataStore.updateUserLastActiveTime(currentUser.id);
         } else {
           window.alert(result.message || '签到失败');
