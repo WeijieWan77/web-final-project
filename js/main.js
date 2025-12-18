@@ -39,7 +39,167 @@
     }
   }
 
+  // --- 毛玻璃效果切换 ---
+
+  function initGlassEffect() {
+    var saved = DataStore.getSavedGlassEffect();
+    if (saved === false) {
+      document.body.classList.add('no-glass-effect');
+    }
+    
+    function updateButtonState() {
+      var isEnabled = !document.body.classList.contains('no-glass-effect');
+      var iconNavbar = qs('#glassEffectToggleBtn .glass-effect-icon');
+      var iconDock = qs('#glassEffectToggleBtnDock .app-dock__icon');
+      
+      if (iconNavbar) {
+        iconNavbar.textContent = isEnabled ? '✨' : '🔲';
+      }
+      if (iconDock) {
+        iconDock.textContent = isEnabled ? '✨' : '🔲';
+      }
+    }
+    
+    function toggleGlassEffect() {
+      var isEnabled = !document.body.classList.contains('no-glass-effect');
+      if (isEnabled) {
+        document.body.classList.add('no-glass-effect');
+        DataStore.setSavedGlassEffect(false);
+      } else {
+        document.body.classList.remove('no-glass-effect');
+        DataStore.setSavedGlassEffect(true);
+      }
+      updateButtonState();
+    }
+
+    // 顶部导航栏按钮
+    var btnNavbar = qs('#glassEffectToggleBtn');
+    if (btnNavbar) {
+      btnNavbar.addEventListener('click', toggleGlassEffect);
+    }
+
+    // 左侧 Dock 按钮
+    var btnDock = qs('#glassEffectToggleBtnDock');
+    if (btnDock) {
+      btnDock.addEventListener('click', toggleGlassEffect);
+    }
+    
+    // 初始化按钮状态
+    updateButtonState();
+  }
+
+  // --- 卡片透明度切换 ---
+
+  function initCardOpacity() {
+    var saved = DataStore.getSavedCardOpacity();
+    if (saved === false) {
+      document.body.classList.add('no-opacity');
+    }
+    
+    function updateButtonState() {
+      var isTransparent = !document.body.classList.contains('no-opacity');
+      var iconNavbar = qs('#opacityToggleBtn .opacity-toggle-icon');
+      var iconDock = qs('#opacityToggleBtnDock .app-dock__icon');
+      
+      if (iconNavbar) {
+        iconNavbar.textContent = isTransparent ? '👁️' : '🔲';
+      }
+      if (iconDock) {
+        iconDock.textContent = isTransparent ? '👁️' : '🔲';
+      }
+    }
+    
+    function toggleCardOpacity() {
+      var isTransparent = !document.body.classList.contains('no-opacity');
+      if (isTransparent) {
+        document.body.classList.add('no-opacity');
+        DataStore.setSavedCardOpacity(false);
+      } else {
+        document.body.classList.remove('no-opacity');
+        DataStore.setSavedCardOpacity(true);
+      }
+      updateButtonState();
+    }
+
+    // 顶部导航栏按钮
+    var btnNavbar = qs('#opacityToggleBtn');
+    if (btnNavbar) {
+      btnNavbar.addEventListener('click', toggleCardOpacity);
+    }
+
+    // 左侧 Dock 按钮
+    var btnDock = qs('#opacityToggleBtnDock');
+    if (btnDock) {
+      btnDock.addEventListener('click', toggleCardOpacity);
+    }
+    
+    // 初始化按钮状态
+    updateButtonState();
+  }
+
   // --- 导航栏 & 用户菜单 ---
+
+  // 导航栏滚动隐藏/显示
+  function initNavbarScroll() {
+    var navbar = qs('.navbar');
+    if (!navbar) {
+      console.warn('导航栏元素未找到');
+      return;
+    }
+
+    var lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var scrollThreshold = 5; // 滚动阈值，避免微小滚动触发
+    var ticking = false;
+
+    // 初始状态：显示导航栏
+    navbar.classList.add('navbar--visible');
+    navbar.classList.remove('navbar--hidden');
+
+    function handleScroll() {
+      if (ticking) return;
+      ticking = true;
+
+      requestAnimationFrame(function () {
+        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        var scrollDelta = scrollTop - lastScrollTop;
+
+        // 在页面顶部时始终显示
+        if (scrollTop <= 20) {
+          navbar.classList.remove('navbar--hidden');
+          navbar.classList.add('navbar--visible');
+          lastScrollTop = scrollTop;
+          ticking = false;
+          return;
+        }
+
+        // 如果滚动距离很小，不处理
+        if (Math.abs(scrollDelta) < scrollThreshold) {
+          ticking = false;
+          return;
+        }
+
+        if (scrollDelta > 0) {
+          // 向下滚动 - 隐藏导航栏
+          navbar.classList.remove('navbar--visible');
+          navbar.classList.add('navbar--hidden');
+        } else if (scrollDelta < 0) {
+          // 向上滚动 - 显示导航栏
+          navbar.classList.remove('navbar--hidden');
+          navbar.classList.add('navbar--visible');
+        }
+
+        lastScrollTop = scrollTop;
+        ticking = false;
+      });
+    }
+
+    // 延迟一下再绑定，确保页面已加载
+    setTimeout(function() {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      // 立即检查一次初始状态
+      handleScroll();
+    }, 100);
+  }
 
   function initNavbarAuthState() {
     var currentUser = Auth.getCurrentUser();
@@ -1019,6 +1179,9 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     initTheme();
+    initGlassEffect();
+    initCardOpacity();
+    initNavbarScroll();
     initNavbarAuthState();
     initModalTriggers();
 

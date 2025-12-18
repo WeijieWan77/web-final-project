@@ -6,6 +6,7 @@
   max-width: var(--content-max-width);
   margin: 0 auto;
   padding: 16px 16px 32px;
+  padding-top: calc(var(--navbar-height) + 16px); /* 为固定导航栏预留空间 */
 }
 
 /* 登录 / 注册页整体布局：左右分屏（右侧略大一些） */
@@ -199,10 +200,13 @@
   height: fit-content;
   max-height: calc(100vh - var(--navbar-height) - 60px);
   overflow-y: auto;
+  /* 隐藏滚动条 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
 .sidebar::-webkit-scrollbar {
-  width: 6px;
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .sidebar::-webkit-scrollbar-thumb {
@@ -212,6 +216,72 @@
 
 .sidebar::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-text-muted);
+}
+
+/* 首页侧边栏玻璃态容器 - 默认更透明（仅在启用毛玻璃时） */
+body[data-page='index']:not(.no-glass-effect) .sidebar {
+  padding: 16px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.35), rgba(248, 250, 252, 0.3));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 不透明模式（禁用透明度时） */
+body[data-page='index']:not(.no-glass-effect).no-opacity .sidebar {
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.3);
+}
+
+/* 悬停时降低透明度 */
+body[data-page='index']:not(.no-glass-effect) .sidebar:hover {
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.85), rgba(248, 250, 252, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
+}
+
+/* 不透明模式悬停 */
+body[data-page='index']:not(.no-glass-effect).no-opacity .sidebar:hover {
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
+}
+
+/* 非毛玻璃样式（禁用毛玻璃时）- 透明模式 */
+body[data-page='index'].no-glass-effect:not(.no-opacity) .sidebar {
+  padding: 16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body[data-page='index'].no-glass-effect:not(.no-opacity) .sidebar:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
+body[data-page='index'].no-glass-effect.no-opacity .sidebar {
+  padding: 16px;
+  border-radius: 24px;
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body[data-page='index'].no-glass-effect.no-opacity .sidebar:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 /* 动态卡片图片布局已在 components.css 中定义 */

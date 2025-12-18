@@ -12,6 +12,8 @@
     currentUserId: 'campuslife_currentUserId',
     rememberedStudentId: 'campuslife_rememberedStudentId',
     theme: 'campuslife_theme',
+    glassEffect: 'campuslife_glassEffect', // 毛玻璃效果偏好
+    cardOpacity: 'campuslife_cardOpacity', // 卡片透明度偏好
     pendingRegistration: 'campuslife_pendingRegistration',
     userVisits: 'campuslife_userVisits', // 用户主页访问量
     favorites: 'campuslife_favorites', // 用户收藏的动态ID列表
@@ -418,6 +420,26 @@
     }
   }
 
+  function getSavedGlassEffect() {
+    const saved = window.localStorage.getItem(STORAGE_KEYS.glassEffect);
+    // 默认启用毛玻璃效果
+    return saved === null ? true : saved === 'true';
+  }
+
+  function setSavedGlassEffect(enabled) {
+    window.localStorage.setItem(STORAGE_KEYS.glassEffect, enabled ? 'true' : 'false');
+  }
+
+  function getSavedCardOpacity() {
+    const saved = window.localStorage.getItem(STORAGE_KEYS.cardOpacity);
+    // 默认透明（true = 透明，false = 不透明）
+    return saved === null ? true : saved === 'true';
+  }
+
+  function setSavedCardOpacity(transparent) {
+    window.localStorage.setItem(STORAGE_KEYS.cardOpacity, transparent ? 'true' : 'false');
+  }
+
   // --- 注册临时数据（用于两步注册流程） ---
 
   function getPendingRegistration() {
@@ -728,6 +750,10 @@
     // 主题
     getSavedTheme,
     setSavedTheme,
+    getSavedGlassEffect,
+    setSavedGlassEffect,
+    getSavedCardOpacity,
+    setSavedCardOpacity,
     // 注册临时数据
     getPendingRegistration,
     setPendingRegistration,
