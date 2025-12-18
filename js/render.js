@@ -115,20 +115,29 @@
   function buildImagesGrid(post) {
     const images = Array.isArray(post.images) ? post.images : [];
     if (!images.length) return '';
-    const gridClass = images.length === 1 ? 'post-card__images-grid--single' : 'post-card__images-grid--multi';
+    const count = Math.min(images.length, 9);
+
+    // 场景 A：单张图片 - 保留原始比例，不裁剪
+    if (count === 1) {
+      return (
+        '<div class="post-card__gallery post-card__gallery--single">' +
+          '<img class="post-card__gallery-img" src="' + escapeHTML(images[0]) + '" alt="动态图片" />' +
+        '</div>'
+      );
+    }
+
+    // 场景 B：多张图片 - 3列网格，强制正方形裁剪
     const imgs = images
       .slice(0, 9)
-      .map(
-        function (url, idx) {
-          return (
-            '<div class="post-card__image-wrapper" data-index="' + idx + '">' +
+      .map(function (url, idx) {
+        return (
+          '<div class="post-card__gallery-item" data-index="' + idx + '">' +
             '<img src="' + escapeHTML(url) + '" alt="动态图片" />' +
-            '</div>'
-          );
-        }
-      )
+          '</div>'
+        );
+      })
       .join('');
-    return '<div class="post-card__images-grid ' + gridClass + '">' + imgs + '</div>';
+    return '<div class="post-card__gallery post-card__gallery--grid post-card__gallery--count-' + count + '">' + imgs + '</div>';
   }
 
   function renderPostTags(tags) {
