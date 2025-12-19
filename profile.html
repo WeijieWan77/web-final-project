@@ -10,7 +10,48 @@
   <link rel="stylesheet" href="css/layout.css" />
 </head>
 <body data-page="profile">
-  <!-- 个人中心也复用全局导航 -->
+  <!-- 左侧悬浮导航 Dock -->
+  <aside class="app-dock" aria-label="主导航快捷栏">
+    <div class="app-dock__inner">
+      <div class="app-dock__top">
+        <div class="app-dock__logo">CL</div>
+        <nav class="app-dock__nav">
+          <a href="index.html" class="app-dock__item" title="首页">
+            <span class="app-dock__icon">🏠</span>
+            <span class="app-dock__label">首页</span>
+          </a>
+          <a href="groups.html" class="app-dock__item" data-auth-visible="user" title="社团集市">
+            <span class="app-dock__icon">👥</span>
+            <span class="app-dock__label">社团集市</span>
+          </a>
+          <a href="checkin.html" class="app-dock__item" data-auth-visible="user" title="每日打卡">
+            <span class="app-dock__icon">📅</span>
+            <span class="app-dock__label">每日打卡</span>
+          </a>
+          <a href="review.html" class="app-dock__item" data-auth-visible="user" title="年度回顾">
+            <span class="app-dock__icon">📊</span>
+            <span class="app-dock__label">年度回顾</span>
+          </a>
+        </nav>
+      </div>
+      <div class="app-dock__bottom">
+        <button type="button" class="app-dock__item app-dock__item--toggle" id="glassEffectToggleBtnDock" title="切换毛玻璃效果">
+          <span class="app-dock__icon">✨</span>
+          <span class="app-dock__label">毛玻璃</span>
+        </button>
+        <button type="button" class="app-dock__item app-dock__item--toggle" id="opacityToggleBtnDock" title="切换卡片透明度">
+          <span class="app-dock__icon">👁️</span>
+          <span class="app-dock__label">透明度</span>
+        </button>
+        <a href="profile.html" class="app-dock__item app-dock__item--active app-dock__item--profile" data-auth-visible="user" title="个人中心">
+          <span class="app-dock__icon">🧑</span>
+          <span class="app-dock__label">个人中心</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 顶部导航栏 -->
   <header class="navbar" aria-label="主导航">
     <div class="navbar__left">
       <a href="index.html" class="navbar__logo">CampusLife</a>
@@ -26,6 +67,12 @@
       <a href="checkin.html" class="btn-icon" data-auth-visible="user" aria-label="打卡签到" title="打卡签到">📅</a>
       <a href="review.html" class="btn-icon" data-auth-visible="user" aria-label="年度回顾" title="年度回顾">📊</a>
       <button type="button" class="btn-icon" id="openPostModalFromProfileBtn" aria-label="发布动态">+</button>
+      <button type="button" class="btn-icon" id="glassEffectToggleBtn" aria-label="切换毛玻璃效果" title="切换毛玻璃效果">
+        <span class="glass-effect-icon" aria-hidden="true">✨</span>
+      </button>
+      <button type="button" class="btn-icon" id="opacityToggleBtn" aria-label="切换卡片透明度" title="切换卡片透明度">
+        <span class="opacity-toggle-icon" aria-hidden="true">👁️</span>
+      </button>
       <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
         <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
       </button>

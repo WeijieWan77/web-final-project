@@ -10,12 +10,69 @@
   <link rel="stylesheet" href="css/layout.css" />
 </head>
 <body data-page="checkin">
+  <!-- 左侧悬浮导航 Dock -->
+  <aside class="app-dock" aria-label="主导航快捷栏">
+    <div class="app-dock__inner">
+      <div class="app-dock__top">
+        <div class="app-dock__logo">CL</div>
+        <nav class="app-dock__nav">
+          <a href="index.html" class="app-dock__item" title="首页">
+            <span class="app-dock__icon">🏠</span>
+            <span class="app-dock__label">首页</span>
+          </a>
+          <a href="groups.html" class="app-dock__item" data-auth-visible="user" title="社团集市">
+            <span class="app-dock__icon">👥</span>
+            <span class="app-dock__label">社团集市</span>
+          </a>
+          <a href="checkin.html" class="app-dock__item app-dock__item--active" data-auth-visible="user" title="每日打卡">
+            <span class="app-dock__icon">📅</span>
+            <span class="app-dock__label">每日打卡</span>
+          </a>
+          <a href="review.html" class="app-dock__item" data-auth-visible="user" title="年度回顾">
+            <span class="app-dock__icon">📊</span>
+            <span class="app-dock__label">年度回顾</span>
+          </a>
+        </nav>
+      </div>
+      <div class="app-dock__bottom">
+        <button type="button" class="app-dock__item app-dock__item--toggle" id="glassEffectToggleBtnDock" title="切换毛玻璃效果">
+          <span class="app-dock__icon">✨</span>
+          <span class="app-dock__label">毛玻璃</span>
+        </button>
+        <button type="button" class="app-dock__item app-dock__item--toggle" id="opacityToggleBtnDock" title="切换卡片透明度">
+          <span class="app-dock__icon">👁️</span>
+          <span class="app-dock__label">透明度</span>
+        </button>
+        <a href="profile.html" class="app-dock__item app-dock__item--profile" data-auth-visible="user" title="个人中心">
+          <span class="app-dock__icon">🧑</span>
+          <span class="app-dock__label">个人中心</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 顶部导航栏 -->
   <header class="navbar" aria-label="主导航">
     <div class="navbar__left">
       <a href="index.html" class="navbar__logo">CampusLife</a>
     </div>
-    <div class="navbar__center"></div>
+    <div class="navbar__center">
+      <form class="navbar__search" role="search">
+        <input type="search" id="globalSearchInput" placeholder="搜索校园动态、话题..." aria-label="搜索动态" />
+        <button type="submit">搜索</button>
+      </form>
+    </div>
     <div class="navbar__right">
+      <a href="groups.html" class="btn-icon" data-auth-visible="user" aria-label="群组" title="群组">👥</a>
+      <a href="checkin.html" class="btn-icon" data-auth-visible="user" aria-label="打卡签到" title="打卡签到">📅</a>
+      <a href="review.html" class="btn-icon" data-auth-visible="user" aria-label="年度回顾" title="年度回顾">📊</a>
+      <button type="button" class="btn-icon" id="openPostModalBtn" aria-label="发布动态">+</button>
+      <button type="button" class="btn-icon" id="glassEffectToggleBtn" aria-label="切换毛玻璃效果" title="切换毛玻璃效果">
+        <span class="glass-effect-icon" aria-hidden="true">✨</span>
+      </button>
+      <button type="button" class="btn-icon" id="opacityToggleBtn" aria-label="切换卡片透明度" title="切换卡片透明度">
+        <span class="opacity-toggle-icon" aria-hidden="true">👁️</span>
+      </button>
       <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
         <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
       </button>
@@ -35,66 +92,71 @@
   </header>
 
   <main class="main main--checkin">
-    <!-- 顶部：荣耀时刻 -->
-    <section class="streak-hero" aria-label="连续签到成就">
-      <div class="streak-hero__icon">🔥</div>
-      <div class="streak-hero__content">
-        <p class="streak-hero__eyebrow">荣耀时刻 · Habit Streak</p>
-        <h1 class="streak-hero__title"><span id="consecutiveDays">0</span> 天</h1>
-        <p class="streak-hero__subtitle" id="streakMessage">坚持从今天开始</p>
-        <div class="streak-hero__meta">
-          <div>
-            <div class="streak-hero__label">总签到</div>
-            <div class="streak-hero__value" id="totalCheckins">0</div>
+    <div class="checkin-layout">
+      <!-- 左侧：主要内容区 -->
+      <div class="checkin-content">
+        <!-- 顶部：荣耀时刻 -->
+        <section class="streak-hero card" aria-label="连续签到成就">
+          <div class="streak-hero__icon">🔥</div>
+          <div class="streak-hero__content">
+            <p class="streak-hero__eyebrow">荣耀时刻 · Habit Streak</p>
+            <h1 class="streak-hero__title"><span id="consecutiveDays">0</span> 天</h1>
+            <p class="streak-hero__subtitle" id="streakMessage">坚持从今天开始</p>
+            <div class="streak-hero__meta">
+              <div>
+                <div class="streak-hero__label">总签到</div>
+                <div class="streak-hero__value" id="totalCheckins">0</div>
+              </div>
+              <div>
+                <div class="streak-hero__label">本月已签</div>
+                <div class="streak-hero__value" id="monthCheckins">0</div>
+              </div>
+              <div>
+                <div class="streak-hero__label">上次签到</div>
+                <div class="streak-hero__value" id="lastCheckinText">--</div>
+              </div>
+            </div>
           </div>
-          <div>
-            <div class="streak-hero__label">本月已签</div>
-            <div class="streak-hero__value" id="monthCheckins">0</div>
+        </section>
+
+        <!-- 中部：日历热力图 + 巨型签到按钮 -->
+        <section class="checkin-board card" aria-label="签到日历">
+          <header class="checkin-board__header">
+            <div>
+              <p class="checkin-board__label">本月签到日历</p>
+              <h2 class="checkin-board__title" id="calendarMonthLabel">--</h2>
+            </div>
+            <div class="checkin-legend">
+              <span class="legend-dot legend-dot--done"></span><span>已签到</span>
+              <span class="legend-dot legend-dot--today"></span><span>今天</span>
+              <span class="legend-dot legend-dot--miss"></span><span>未签到</span>
+            </div>
+          </header>
+
+          <div id="checkinCalendar" class="checkin-calendar" aria-label="日历">
+            <!-- JS 渲染日历格子 -->
           </div>
-          <div>
-            <div class="streak-hero__label">上次签到</div>
-            <div class="streak-hero__value" id="lastCheckinText">--</div>
+
+          <div class="checkin-action">
+            <form id="checkinForm" class="checkin-form">
+              <textarea id="checkinContentInput" rows="3" placeholder="记录今天的心情或计划..."></textarea>
+              <button type="submit" id="checkinBtn" class="btn-checkin-pulse">立即签到</button>
+            </form>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- 中部：日历热力图 + 巨型签到按钮 -->
-    <section class="checkin-board" aria-label="签到日历">
-      <header class="checkin-board__header">
-        <div>
-          <p class="checkin-board__label">本月签到日历</p>
-          <h2 class="checkin-board__title" id="calendarMonthLabel">--</h2>
-        </div>
-        <div class="checkin-legend">
-          <span class="legend-dot legend-dot--done"></span><span>已签到</span>
-          <span class="legend-dot legend-dot--today"></span><span>今天</span>
-          <span class="legend-dot legend-dot--miss"></span><span>未签到</span>
-        </div>
-      </header>
-
-      <div id="checkinCalendar" class="checkin-calendar" aria-label="日历">
-        <!-- JS 渲染日历格子 -->
+        <!-- 底部：签到时间轴 -->
+        <section class="checkin-history card">
+          <div class="checkin-history__header">
+            <h2>签到时间轴</h2>
+            <p class="checkin-history__hint">最近 30 条记录</p>
+          </div>
+          <div id="checkinHistoryList" class="checkin-timeline">
+            <!-- JS 渲染签到历史 -->
+          </div>
+        </section>
       </div>
-
-      <div class="checkin-action">
-        <form id="checkinForm" class="checkin-form">
-          <textarea id="checkinContentInput" rows="3" placeholder="记录今天的心情或计划..."></textarea>
-          <button type="submit" id="checkinBtn" class="btn-checkin-pulse">立即签到</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- 底部：签到时间轴 -->
-    <section class="checkin-history">
-      <div class="checkin-history__header">
-        <h2>签到时间轴</h2>
-        <p class="checkin-history__hint">最近 30 条记录</p>
-      </div>
-      <div id="checkinHistoryList" class="checkin-timeline">
-        <!-- JS 渲染签到历史 -->
-      </div>
-    </section>
+    </div>
   </main>
 
   <script src="js/data-store.js"></script>

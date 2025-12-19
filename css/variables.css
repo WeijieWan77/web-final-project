@@ -112,6 +112,15 @@ body[data-page='index']::after {
   z-index: 0;
 }
 
+/* 夜间模式：在视频背景上叠加80%透明度的黑色遮罩 */
+body[data-page='index'][data-theme='dark']::after {
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.015) 2px, rgba(0, 0, 0, 0.015) 4px),
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 0, 0, 0.015) 2px, rgba(0, 0, 0, 0.015) 4px),
+    rgba(0, 0, 0, 0.8);
+  opacity: 1;
+}
+
 body[data-page='index'] .main--home,
 body[data-page='index'] .hero,
 body[data-page='index'] .navbar {

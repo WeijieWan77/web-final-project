@@ -49,6 +49,23 @@ body[data-page='index'] .navbar {
   animation-fill-mode: forwards;
 }
 
+/* 确保滚动隐藏/显示功能在首页正常工作 - 使用更高的优先级 */
+body[data-page='index'] .navbar.navbar--hidden {
+  animation: none !important;
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden;
+}
+
+body[data-page='index'] .navbar.navbar--visible {
+  animation: none !important;
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible;
+}
+
 @keyframes navbarSlideDown {
   from {
     opacity: 0;
@@ -64,6 +81,46 @@ body[data-theme='dark'] .navbar {
   background-color: rgba(15, 23, 42, 0.75);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+/* 打卡页面导航栏样式（与首页一致） */
+body[data-page='checkin'] .navbar {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  margin: 12px auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body[data-page='checkin'][data-theme='dark'] .navbar {
+  background-color: rgba(20, 20, 20, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* 统一所有页面的导航栏样式（除了首页和登录注册页） */
+body[data-page='groups'] .navbar,
+body[data-page='profile'] .navbar,
+body[data-page='detail'] .navbar,
+body[data-page='admin'] .navbar {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  margin: 12px auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+body[data-page='groups'][data-theme='dark'] .navbar,
+body[data-page='profile'][data-theme='dark'] .navbar,
+body[data-page='detail'][data-theme='dark'] .navbar,
+body[data-page='admin'][data-theme='dark'] .navbar {
+  background-color: rgba(20, 20, 20, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .navbar--simple {
@@ -112,6 +169,8 @@ body[data-page='index'] #themeToggleBtn {
   width: 80px;
   z-index: 90;
   pointer-events: none;
+  /* 确保文字颜色正确 */
+  color: var(--color-text-main);
 }
 
 .app-dock__inner {
@@ -131,6 +190,13 @@ body[data-page='index'] #themeToggleBtn {
   pointer-events: auto;
 }
 
+/* 夜间模式：Dock使用黑色玻璃 */
+body[data-theme='dark'] .app-dock__inner {
+  background: radial-gradient(circle at 0 0, rgba(20, 20, 20, 0.6), rgba(30, 30, 30, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
 /* 禁用毛玻璃时的 dock 样式 - 透明模式 */
 body.no-glass-effect:not(.no-opacity) .app-dock__inner {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.6), rgba(248, 250, 252, 0.5));
@@ -141,6 +207,13 @@ body.no-glass-effect:not(.no-opacity) .app-dock__inner {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃透明模式下的Dock */
+body[data-theme='dark'].no-glass-effect:not(.no-opacity) .app-dock__inner {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.5));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+
 /* 禁用毛玻璃时的 dock 样式 - 不透明模式 */
 body.no-glass-effect.no-opacity .app-dock__inner {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
@@ -149,6 +222,13 @@ body.no-glass-effect.no-opacity .app-dock__inner {
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.3);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 夜间模式：无毛玻璃不透明模式下的Dock */
+body[data-theme='dark'].no-glass-effect.no-opacity .app-dock__inner {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
 }
 
 /* 不透明模式时的 dock 样式 */
@@ -172,6 +252,14 @@ body:not(.no-glass-effect) .app-dock:focus-within .app-dock__inner {
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
 }
 
+/* 夜间模式：Dock悬停时 */
+body[data-theme='dark']:not(.no-glass-effect) .app-dock:hover .app-dock__inner,
+body[data-theme='dark']:not(.no-glass-effect) .app-dock:focus-within .app-dock__inner {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.7), rgba(40, 40, 40, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
 body.no-glass-effect:not(.no-opacity) .app-dock:hover .app-dock__inner,
 body.no-glass-effect:not(.no-opacity) .app-dock:focus-within .app-dock__inner {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.75));
@@ -179,11 +267,27 @@ body.no-glass-effect:not(.no-opacity) .app-dock:focus-within .app-dock__inner {
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.3);
 }
 
+/* 夜间模式：无毛玻璃透明模式悬停时的Dock */
+body[data-theme='dark'].no-glass-effect:not(.no-opacity) .app-dock:hover .app-dock__inner,
+body[data-theme='dark'].no-glass-effect:not(.no-opacity) .app-dock:focus-within .app-dock__inner {
+  background: radial-gradient(circle at 0 0, rgba(40, 40, 40, 0.8), rgba(30, 30, 30, 0.75));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
 body.no-glass-effect.no-opacity .app-dock:hover .app-dock__inner,
 body.no-glass-effect.no-opacity .app-dock:focus-within .app-dock__inner {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
   border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
+}
+
+/* 夜间模式：无毛玻璃不透明模式悬停时的Dock */
+body[data-theme='dark'].no-glass-effect.no-opacity .app-dock:hover .app-dock__inner,
+body[data-theme='dark'].no-glass-effect.no-opacity .app-dock:focus-within .app-dock__inner {
+  background: radial-gradient(circle at 0 0, rgba(40, 40, 40, 0.98), rgba(30, 30, 30, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
 }
 
 body:not(.no-glass-effect).no-opacity .app-dock:hover .app-dock__inner,
@@ -225,7 +329,7 @@ body:not(.no-glass-effect).no-opacity .app-dock:focus-within .app-dock__inner {
   gap: 10px;
   padding: 10px 12px;
   border-radius: 999px;
-  color: #1f2937;
+  color: var(--color-text-main);
   text-decoration: none;
   font-size: 13px;
   white-space: nowrap;
@@ -265,6 +369,11 @@ body:not(.no-glass-effect).no-opacity .app-dock:focus-within .app-dock__inner {
   z-index: 1;
 }
 
+/* 夜间模式：Dock图标背景 */
+body[data-theme='dark'] .app-dock__icon {
+  background-color: rgba(30, 30, 30, 0.9);
+}
+
 .app-dock__label {
   opacity: 0;
   transform: translateX(-4px);
@@ -282,9 +391,19 @@ body:not(.no-glass-effect).no-opacity .app-dock:focus-within .app-dock__inner {
 .app-dock__item--active {
   background: linear-gradient(135deg, rgba(244, 114, 182, 0.85), rgba(59, 130, 246, 0.9));
   box-shadow: 0 18px 40px rgba(56, 189, 248, 0.5);
+  color: #fff;
 }
 
 .app-dock__item--active .app-dock__icon {
+  background-color: rgba(15, 23, 42, 0.96);
+}
+
+/* 夜间模式：激活状态的Dock项 */
+body[data-theme='dark'] .app-dock__item--active {
+  color: #fff;
+}
+
+body[data-theme='dark'] .app-dock__item--active .app-dock__icon {
   background-color: rgba(15, 23, 42, 0.96);
 }
 
@@ -932,6 +1051,14 @@ body[data-page='index']:not(.no-glass-effect) .post-card {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：卡片使用黑色玻璃 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect) .card,
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect) .post-card {
+  background: radial-gradient(circle at 0 0, rgba(20, 20, 20, 0.6), rgba(30, 30, 30, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
 /* 不透明模式（禁用透明度时） */
 body[data-page='index']:not(.no-glass-effect).no-opacity .card,
 body[data-page='index']:not(.no-glass-effect).no-opacity .post-card {
@@ -940,12 +1067,28 @@ body[data-page='index']:not(.no-glass-effect).no-opacity .post-card {
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.3);
 }
 
+/* 夜间模式：不透明模式下的卡片 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect).no-opacity .card,
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect).no-opacity .post-card {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
 /* 悬停时降低透明度 */
 body[data-page='index']:not(.no-glass-effect) .card:hover,
 body[data-page='index']:not(.no-glass-effect) .post-card:hover {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.85), rgba(248, 250, 252, 0.8));
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
+}
+
+/* 夜间模式：悬停时的卡片 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect) .card:hover,
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect) .post-card:hover {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.7), rgba(40, 40, 40, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* 不透明模式悬停 */
@@ -967,10 +1110,25 @@ body[data-page='index'].no-glass-effect:not(.no-opacity) .post-card {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃透明模式下的卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .card,
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .post-card {
+  background: rgba(30, 30, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
 body[data-page='index'].no-glass-effect:not(.no-opacity) .card:hover,
 body[data-page='index'].no-glass-effect:not(.no-opacity) .post-card:hover {
   background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 16px 50px -12px rgba(255, 100, 100, 0.2);
+}
+
+/* 夜间模式：无毛玻璃透明模式悬停时的卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .card:hover,
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .post-card:hover {
+  background: rgba(40, 40, 40, 0.8);
+  box-shadow: 0 16px 50px -12px rgba(0, 0, 0, 0.4);
 }
 
 /* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
@@ -984,10 +1142,25 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃不透明模式下的卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .card,
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .post-card {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
 body[data-page='index'].no-glass-effect.no-opacity .card:hover,
 body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   background: #ffffff;
   box-shadow: 0 16px 50px -12px rgba(255, 100, 100, 0.2);
+}
+
+/* 夜间模式：无毛玻璃不透明模式悬停时的卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .card:hover,
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .post-card:hover {
+  background: #1f1f1f;
+  box-shadow: 0 16px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .card::after {
@@ -1733,6 +1906,12 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
+/* 夜间模式：日历Widget背景 */
+body[data-theme='dark'] .widget-calendar {
+  background: rgba(30, 30, 30, 0.8);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
 .widget-calendar__header {
   display: flex;
   flex-direction: column;
@@ -1743,6 +1922,7 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 .widget-calendar__month {
   font-size: 14px;
   font-weight: 600;
+  color: var(--color-text-main);
 }
 
 .widget-calendar__hint {
@@ -1799,6 +1979,12 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
+/* 夜间模式：天气Widget背景 */
+body[data-theme='dark'] .widget-weather {
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.8), rgba(40, 40, 40, 0.8));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
 .widget-weather__icon {
   font-size: 24px;
 }
@@ -1806,6 +1992,7 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 .widget-weather__title {
   font-size: 13px;
   font-weight: 600;
+  color: var(--color-text-main);
 }
 
 .widget-weather__meta {
@@ -1868,12 +2055,18 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   min-height: 36px;
   border-radius: 999px;
   background: #f3f4f6;
-  color: #666;
+  color: var(--color-text-main);
   font-size: var(--font-size-xs);
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
   border: none;
   box-shadow: none;
+}
+
+/* 夜间模式：热门话题标签 */
+body[data-theme='dark'] .hot-topic-chip {
+  background: rgba(40, 40, 40, 0.8);
+  color: var(--color-text-main);
 }
 
 .hot-topic-chip:hover {
@@ -1882,10 +2075,21 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   background: radial-gradient(circle at 30% 10%, rgba(255, 255, 255, 1), rgba(248, 250, 252, 0.98));
 }
 
+/* 夜间模式：热门话题标签悬停 */
+body[data-theme='dark'] .hot-topic-chip:hover {
+  background: rgba(50, 50, 50, 0.9);
+}
+
 .hot-topic-chip--hot {
   background: #fce7f3;
   color: #be185d;
   font-weight: 600;
+}
+
+/* 夜间模式：热门话题标签（热门） */
+body[data-theme='dark'] .hot-topic-chip--hot {
+  background: rgba(190, 24, 93, 0.2);
+  color: #f472b6;
 }
 
 .hot-topic-chip__count {
@@ -2074,16 +2278,47 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 .profile-hero__card {
   position: relative;
   margin: -80px 20px 0;
-  padding: 20px;
-  border-radius: 20px;
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-elevated);
+  padding: 24px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.35), rgba(248, 250, 252, 0.3));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 12px;
   z-index: 1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+/* 夜间模式：个人中心卡片 */
+body[data-theme='dark'] .profile-hero__card {
+  background: radial-gradient(circle at 0 0, rgba(20, 20, 20, 0.6), rgba(30, 30, 30, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 无毛玻璃模式 */
+body.no-glass-effect .profile-hero__card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-theme='dark'].no-glass-effect .profile-hero__card {
+  background: rgba(30, 30, 30, 0.95);
+}
+
+.profile-hero__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(148, 163, 184, 0.3);
+}
+
+body[data-theme='dark'] .profile-hero__card:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .profile-hero__avatar-wrapper {
@@ -2294,12 +2529,18 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 /* 管理员表格 */
 
 .admin-section {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.admin-section__header {
+  margin-bottom: 16px;
 }
 
 .admin-section__title {
-  font-size: 18px;
-  margin-bottom: 4px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--color-text-main);
 }
 
 .admin-section__subtitle {
@@ -2309,10 +2550,40 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 }
 
 .admin-table-wrapper {
-  border-radius: 18px;
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-soft);
+  border-radius: 24px;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.35), rgba(248, 250, 252, 0.3));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
   overflow: auto;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+/* 夜间模式：管理员表格 */
+body[data-theme='dark'] .admin-table-wrapper {
+  background: radial-gradient(circle at 0 0, rgba(20, 20, 20, 0.6), rgba(30, 30, 30, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 无毛玻璃模式 */
+body.no-glass-effect .admin-table-wrapper {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-theme='dark'].no-glass-effect .admin-table-wrapper {
+  background: rgba(30, 30, 30, 0.6);
+}
+
+.admin-table-wrapper:hover {
+  box-shadow: 0 20px 50px rgba(148, 163, 184, 0.25);
+}
+
+body[data-theme='dark'] .admin-table-wrapper:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .admin-table {
@@ -2340,14 +2611,36 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 }
 
 .admin-post-item {
-  padding: 10px 12px;
-  border-radius: 14px;
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-soft);
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: var(--font-size-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/* 夜间模式：管理员动态项 */
+body[data-theme='dark'] .admin-post-item {
+  background: rgba(30, 30, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.admin-post-item:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme='dark'] .admin-post-item:hover {
+  background: rgba(40, 40, 40, 0.7);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 /* 群组页面样式 */
@@ -2358,15 +2651,37 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   margin-bottom: 20px;
 }
 
-/* 顶部 Hero Banner */
+/* 顶部 Hero Banner - 使用玻璃材质 */
 .groups-hero {
   position: relative;
   margin-bottom: 24px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: var(--shadow-elevated);
-  background-color: #0f172a;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.4), rgba(17, 24, 39, 0.45));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 夜间模式：群组 Hero */
+body[data-theme='dark'] .groups-hero {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(17, 24, 39, 0.65));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* 无毛玻璃模式 */
+body.no-glass-effect .groups-hero {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(17, 24, 39, 0.75));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.groups-hero:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
 .groups-hero__bg {
@@ -2465,11 +2780,42 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 .group-card {
   position: relative;
   overflow: hidden;
-  border-radius: 18px;
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-soft);
+  border-radius: 24px;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.35), rgba(248, 250, 252, 0.3));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+/* 夜间模式：群组卡片 */
+body[data-theme='dark'] .group-card {
+  background: radial-gradient(circle at 0 0, rgba(20, 20, 20, 0.6), rgba(30, 30, 30, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 无毛玻璃模式 */
+body.no-glass-effect .group-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-theme='dark'].no-glass-effect .group-card {
+  background: rgba(30, 30, 30, 0.6);
+}
+
+.group-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(148, 163, 184, 0.3);
+}
+
+body[data-theme='dark'] .group-card:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .group-card__cover {
@@ -2667,21 +3013,72 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 
 /* 打卡签到页面样式 */
 .main--checkin {
-  max-width: 1000px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 32px;
+  padding-top: calc(var(--navbar-height) + 20px);
 }
 
-/* 顶部荣耀时刻 */
+/* 打卡页面在桌面端为左侧 Dock 预留空间 */
+@media (min-width: 1100px) {
+  body[data-page='checkin'] .main--checkin {
+    padding-left: 96px;
+  }
+}
+
+/* 打卡页面布局容器 */
+.checkin-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.checkin-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 顶部荣耀时刻 - 使用卡片样式 */
 .streak-hero {
   display: grid;
   grid-template-columns: 120px 1fr;
   gap: 16px;
   align-items: center;
-  padding: 20px 18px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #4338ca, #6366f1);
+  padding: 24px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.4), rgba(99, 102, 241, 0.45));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
   color: #fff;
-  box-shadow: var(--shadow-elevated);
-  margin-bottom: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 夜间模式：荣耀时刻卡片 */
+body[data-theme='dark'] .streak-hero {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.6), rgba(99, 102, 241, 0.65));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 无毛玻璃模式 */
+body.no-glass-effect .streak-hero {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.6), rgba(99, 102, 241, 0.65));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-theme='dark'].no-glass-effect .streak-hero {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.7), rgba(99, 102, 241, 0.75));
+}
+
+.streak-hero:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(99, 102, 241, 0.3);
 }
 
 .streak-hero__icon {
@@ -2731,13 +3128,43 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   font-weight: 700;
 }
 
-/* 日历 + 大按钮面板 */
+/* 日历 + 大按钮面板 - 使用卡片样式 */
 .checkin-board {
-  background-color: var(--color-surface);
-  border-radius: 18px;
-  box-shadow: var(--shadow-elevated);
-  padding: 18px 16px 20px;
-  margin-bottom: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.35), rgba(248, 250, 252, 0.3));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+/* 夜间模式：签到面板 */
+body[data-theme='dark'] .checkin-board {
+  background: radial-gradient(circle at 0 0, rgba(20, 20, 20, 0.6), rgba(30, 30, 30, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 无毛玻璃模式 */
+body.no-glass-effect .checkin-board {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-theme='dark'].no-glass-effect .checkin-board {
+  background: rgba(30, 30, 30, 0.6);
+}
+
+.checkin-board:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(148, 163, 184, 0.25);
+}
+
+body[data-theme='dark'] .checkin-board:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .checkin-board__header {
@@ -2790,43 +3217,72 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .calendar-day {
   aspect-ratio: 1 / 1;
-  border-radius: 12px;
-  background-color: var(--color-surface-soft);
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   font-weight: 600;
-  color: var(--color-text-muted);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  color: var(--color-text-main);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+/* 夜间模式：日历日期 */
+body[data-theme='dark'] .calendar-day {
+  background-color: rgba(30, 30, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calendar-day:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme='dark'] .calendar-day:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .calendar-day--empty {
   background: transparent;
+  border: none;
   box-shadow: none;
 }
 
 .calendar-day--done {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #fff;
-  box-shadow: var(--shadow-soft);
+  border: none;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
 .calendar-day--miss {
-  background-color: var(--color-surface-soft);
+  background-color: rgba(255, 255, 255, 0.3);
   color: var(--color-text-muted);
-  opacity: 0.7;
+  opacity: 0.6;
+}
+
+body[data-theme='dark'] .calendar-day--miss {
+  background-color: rgba(30, 30, 30, 0.3);
 }
 
 .calendar-day--today {
   border: 2px solid var(--color-primary);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 10px 30px rgba(255, 79, 121, 0.25);
   animation: calendar-pulse 1.2s ease-in-out infinite;
+  background-color: rgba(255, 79, 121, 0.1);
+}
+
+body[data-theme='dark'] .calendar-day--today {
+  background-color: rgba(255, 79, 121, 0.2);
 }
 
 @keyframes calendar-pulse {
@@ -2849,11 +3305,33 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 }
 
 .checkin-form textarea {
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid var(--color-border-subtle);
-  background-color: var(--color-input-bg);
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   resize: vertical;
+  color: var(--color-text-main);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* 夜间模式：签到输入框 */
+body[data-theme='dark'] .checkin-form textarea {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(30, 30, 30, 0.5);
+}
+
+.checkin-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 79, 121, 0.1);
+}
+
+body[data-theme='dark'] .checkin-form textarea:focus {
+  background-color: rgba(40, 40, 40, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 79, 121, 0.2);
 }
 
 .btn-checkin-pulse {
@@ -2899,19 +3377,56 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
   100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
 }
 
-/* 时间轴 */
+/* 时间轴 - 使用卡片样式 */
 .checkin-history {
-  background-color: var(--color-surface);
-  border-radius: 16px;
-  box-shadow: var(--shadow-soft);
-  padding: 16px;
+  padding: 24px;
+  border-radius: 24px;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.35), rgba(248, 250, 252, 0.3));
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+/* 夜间模式：签到历史 */
+body[data-theme='dark'] .checkin-history {
+  background: radial-gradient(circle at 0 0, rgba(20, 20, 20, 0.6), rgba(30, 30, 30, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 无毛玻璃模式 */
+body.no-glass-effect .checkin-history {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-theme='dark'].no-glass-effect .checkin-history {
+  background: rgba(30, 30, 30, 0.6);
+}
+
+.checkin-history:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(148, 163, 184, 0.25);
+}
+
+body[data-theme='dark'] .checkin-history:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .checkin-history__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.checkin-history__header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-main);
 }
 
 .checkin-history__hint {
@@ -2927,10 +3442,30 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 
 .checkin-history-item {
   position: relative;
-  padding: 12px 12px 12px 20px;
-  border-radius: 12px;
-  background-color: var(--color-surface-soft);
-  border: 1px solid var(--color-border-subtle);
+  padding: 16px 16px 16px 24px;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/* 夜间模式：签到历史项 */
+body[data-theme='dark'] .checkin-history-item {
+  background-color: rgba(30, 30, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.checkin-history-item:hover {
+  transform: translateX(4px);
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme='dark'] .checkin-history-item:hover {
+  background-color: rgba(40, 40, 40, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .checkin-history-item::before {
@@ -2954,7 +3489,7 @@ body[data-page='index'].no-glass-effect.no-opacity .post-card:hover {
 }
 
 .checkin-history-item__day {
-  color: var(--color-text);
+  color: var(--color-text-main);
 }
 
 .checkin-history-item__time {
@@ -3525,6 +4060,13 @@ body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card {
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.3);
 }
 
+/* 夜间模式：不透明模式下的Hero卡片 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect).no-opacity .hero__card {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
 /* 悬停时降低透明度 */
 body[data-page='index']:not(.no-glass-effect) .hero__card:hover {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.85), rgba(248, 250, 252, 0.8));
@@ -3532,11 +4074,25 @@ body[data-page='index']:not(.no-glass-effect) .hero__card:hover {
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
 }
 
+/* 夜间模式：Hero卡片悬停时 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect) .hero__card:hover {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.7), rgba(40, 40, 40, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
 /* 不透明模式悬停 */
 body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card:hover {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
+}
+
+/* 夜间模式：不透明模式悬停 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect).no-opacity .hero__card:hover {
+  background: radial-gradient(circle at 0 0, rgba(40, 40, 40, 0.98), rgba(30, 30, 30, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* 非毛玻璃样式（禁用毛玻璃时）- 透明模式 */
@@ -3548,9 +4104,22 @@ body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃透明模式下的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card {
+  background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.5));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
 body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card:hover {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.7));
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+}
+
+/* 夜间模式：无毛玻璃透明模式悬停时的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card:hover {
+  background: linear-gradient(145deg, rgba(40, 40, 40, 0.8), rgba(30, 30, 30, 0.7));
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
 }
 
 /* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
@@ -3562,8 +4131,20 @@ body[data-page='index'].no-glass-effect.no-opacity .hero__card {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃不透明模式下的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card {
+  background: linear-gradient(145deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
 body[data-page='index'].no-glass-effect.no-opacity .hero__card:hover {
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+}
+
+/* 夜间模式：无毛玻璃不透明模式悬停时的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card:hover {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
 }
 
 .hero__card--headline {
@@ -3606,8 +4187,18 @@ body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline {
   transition: background 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃透明模式下的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.4), rgba(99, 102, 241, 0.45));
+}
+
 body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
   background: linear-gradient(135deg, rgba(67, 56, 202, 0.75), rgba(99, 102, 241, 0.8));
+}
+
+/* 夜间模式：无毛玻璃透明模式悬停时的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.5), rgba(99, 102, 241, 0.55));
 }
 
 /* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
@@ -3618,8 +4209,18 @@ body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline {
   transition: background 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃不透明模式下的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.8), rgba(99, 102, 241, 0.85));
+}
+
 body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline:hover {
   background: linear-gradient(135deg, #4f46e5, #6366f1);
+}
+
+/* 夜间模式：无毛玻璃不透明模式悬停时的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline:hover {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(99, 102, 241, 0.95));
 }
 
 .hero__eyebrow {
@@ -3834,6 +4435,13 @@ body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card {
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.3);
 }
 
+/* 夜间模式：不透明模式下的Hero卡片 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect).no-opacity .hero__card {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
 /* 悬停时降低透明度 */
 body[data-page='index']:not(.no-glass-effect) .hero__card:hover {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.85), rgba(248, 250, 252, 0.8));
@@ -3841,11 +4449,25 @@ body[data-page='index']:not(.no-glass-effect) .hero__card:hover {
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
 }
 
+/* 夜间模式：Hero卡片悬停时 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect) .hero__card:hover {
+  background: radial-gradient(circle at 0 0, rgba(30, 30, 30, 0.7), rgba(40, 40, 40, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
 /* 不透明模式悬停 */
 body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card:hover {
   background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
+}
+
+/* 夜间模式：不透明模式悬停 */
+body[data-page='index'][data-theme='dark']:not(.no-glass-effect).no-opacity .hero__card:hover {
+  background: radial-gradient(circle at 0 0, rgba(40, 40, 40, 0.98), rgba(30, 30, 30, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* 非毛玻璃样式（禁用毛玻璃时）- 透明模式 */
@@ -3857,9 +4479,22 @@ body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃透明模式下的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card {
+  background: linear-gradient(145deg, rgba(30, 30, 30, 0.6), rgba(20, 20, 20, 0.5));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
 body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card:hover {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.7));
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+}
+
+/* 夜间模式：无毛玻璃透明模式悬停时的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card:hover {
+  background: linear-gradient(145deg, rgba(40, 40, 40, 0.8), rgba(30, 30, 30, 0.7));
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
 }
 
 /* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
@@ -3871,8 +4506,20 @@ body[data-page='index'].no-glass-effect.no-opacity .hero__card {
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃不透明模式下的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card {
+  background: linear-gradient(145deg, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
 body[data-page='index'].no-glass-effect.no-opacity .hero__card:hover {
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+}
+
+/* 夜间模式：无毛玻璃不透明模式悬停时的Hero卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card:hover {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
 }
 
 .hero__card--headline {
@@ -3915,8 +4562,18 @@ body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline {
   transition: background 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃透明模式下的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.4), rgba(99, 102, 241, 0.45));
+}
+
 body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
   background: linear-gradient(135deg, rgba(67, 56, 202, 0.75), rgba(99, 102, 241, 0.8));
+}
+
+/* 夜间模式：无毛玻璃透明模式悬停时的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.5), rgba(99, 102, 241, 0.55));
 }
 
 /* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
@@ -3927,8 +4584,18 @@ body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline {
   transition: background 0.3s ease;
 }
 
+/* 夜间模式：无毛玻璃不透明模式下的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline {
+  background: linear-gradient(135deg, rgba(67, 56, 202, 0.8), rgba(99, 102, 241, 0.85));
+}
+
 body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline:hover {
   background: linear-gradient(135deg, #4f46e5, #6366f1);
+}
+
+/* 夜间模式：无毛玻璃不透明模式悬停时的Hero headline卡片 */
+body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline:hover {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(99, 102, 241, 0.95));
 }
 
 .hero__eyebrow {

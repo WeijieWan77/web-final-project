@@ -139,7 +139,7 @@
 
   // --- 导航栏 & 用户菜单 ---
 
-  // 导航栏滚动隐藏/显示
+  // 导航栏滚动隐藏/显示（主要在首页使用）
   function initNavbarScroll() {
     var navbar = qs('.navbar');
     if (!navbar) {
@@ -147,15 +147,36 @@
       return;
     }
 
+    var pageKey = getPageKey();
+    // 只在首页启用滚动隐藏/显示功能
+    if (pageKey !== 'index') {
+      // 其他页面保持导航栏始终可见
+      navbar.classList.add('navbar--visible');
+      navbar.classList.remove('navbar--hidden');
+      return;
+    }
+
     var lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
     var scrollThreshold = 5; // 滚动阈值，避免微小滚动触发
     var ticking = false;
+    var animationCompleted = false;
 
-    // 初始状态：显示导航栏
-    navbar.classList.add('navbar--visible');
-    navbar.classList.remove('navbar--hidden');
+    // 等待动画完成后启用滚动控制
+    setTimeout(function() {
+      animationCompleted = true;
+      // 确保初始状态正确
+      navbar.classList.add('navbar--visible');
+      navbar.classList.remove('navbar--hidden');
+      // 移除动画，避免干扰后续的滚动控制
+      navbar.style.animation = 'none';
+    }, 650); // 动画时长 0.6s + 50ms 缓冲
 
     function handleScroll() {
+      // 如果动画还没完成，不处理滚动
+      if (!animationCompleted) {
+        return;
+      }
+
       if (ticking) return;
       ticking = true;
 
@@ -193,12 +214,8 @@
       });
     }
 
-    // 延迟一下再绑定，确保页面已加载
-    setTimeout(function() {
-      window.addEventListener('scroll', handleScroll, { passive: true });
-      // 立即检查一次初始状态
-      handleScroll();
-    }, 100);
+    // 立即绑定滚动事件，但会在函数内部检查动画是否完成
+    window.addEventListener('scroll', handleScroll, { passive: true });
   }
 
   function initNavbarAuthState() {
