@@ -10,6 +10,13 @@
   <link rel="stylesheet" href="css/layout.css" />
 </head>
 <body data-page="profile">
+  <!-- 视频背景 -->
+  <video id="bgVideoDay" class="bg-video bg-video--day" autoplay muted loop playsinline>
+    <source src="video/水墨.mp4" type="video/mp4" />
+  </video>
+  <video id="bgVideoNight" class="bg-video bg-video--night" autoplay muted loop playsinline>
+    <source src="video/night-sky.mp4" type="video/mp4" />
+  </video>
   <!-- 左侧悬浮导航 Dock -->
   <aside class="app-dock" aria-label="主导航快捷栏">
     <div class="app-dock__inner">
@@ -73,14 +80,21 @@
       <button type="button" class="btn-icon" id="opacityToggleBtn" aria-label="切换卡片透明度" title="切换卡片透明度">
         <span class="opacity-toggle-icon" aria-hidden="true">👁️</span>
       </button>
-      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+      <button type="button" class="btn-icon js-theme-toggle" id="themeToggleBtn" aria-label="切换夜间模式">
         <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
       </button>
       <div class="navbar__user">
-        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+        <a href="profile.html" class="navbar__user-avatar" id="userProfileLink" title="个人中心">
           <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </a>
+        <button type="button" class="navbar__user-trigger" id="userMenuToggle" aria-label="用户菜单" aria-haspopup="true" aria-expanded="false">
+          ▼
         </button>
         <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <div class="user-menu-header" data-auth-visible="user">
+            <div class="user-menu-name" id="menuUserName">同学</div>
+            <div class="user-menu-id" id="menuUserId">ID: --</div>
+          </div>
           <a href="login.html" data-auth-visible="guest">登录</a>
           <a href="register.html" data-auth-visible="guest">注册</a>
           <a href="profile.html" data-auth-visible="user">个人中心</a>

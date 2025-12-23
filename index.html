@@ -50,6 +50,10 @@
         </nav>
       </div>
       <div class="app-dock__bottom">
+        <button type="button" class="app-dock__item app-dock__item--toggle js-theme-toggle" id="themeToggleBtnDock" title="切换夜间模式">
+          <span class="app-dock__icon theme-toggle-icon">🌙</span>
+          <span class="app-dock__label">夜间模式</span>
+        </button>
         <button type="button" class="app-dock__item app-dock__item--toggle" id="glassEffectToggleBtnDock" title="切换毛玻璃效果">
           <span class="app-dock__icon">✨</span>
           <span class="app-dock__label">毛玻璃</span>
@@ -88,14 +92,21 @@
       <button type="button" class="btn-icon" id="opacityToggleBtn" aria-label="切换卡片透明度" title="切换卡片透明度">
         <span class="opacity-toggle-icon" aria-hidden="true">👁️</span>
       </button>
-      <button type="button" class="btn-icon" id="themeToggleBtn" aria-label="切换夜间模式">
+      <button type="button" class="btn-icon js-theme-toggle" id="themeToggleBtn" aria-label="切换夜间模式">
         <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
       </button>
       <div class="navbar__user">
-        <button type="button" id="userMenuToggle" class="avatar-button" aria-haspopup="true" aria-expanded="false">
+        <a href="profile.html" class="navbar__user-avatar" id="userProfileLink" title="个人中心">
           <img src="" alt="用户头像" id="navbarAvatarImg" />
+        </a>
+        <button type="button" class="navbar__user-trigger" id="userMenuToggle" aria-label="用户菜单" aria-haspopup="true" aria-expanded="false">
+          ▼
         </button>
         <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
+          <div class="user-menu-header" data-auth-visible="user">
+            <div class="user-menu-name" id="menuUserName">同学</div>
+            <div class="user-menu-id" id="menuUserId">ID: --</div>
+          </div>
           <a href="login.html" data-auth-visible="guest">登录</a>
           <a href="register.html" data-auth-visible="guest">注册</a>
           <a href="profile.html" data-auth-visible="user">个人中心</a>

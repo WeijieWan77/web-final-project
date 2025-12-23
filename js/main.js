@@ -24,8 +24,26 @@
     if (saved) {
       document.body.setAttribute('data-theme', saved);
     }
-    var btn = qs('#themeToggleBtn');
-    if (btn) {
+    
+    function updateThemeIcons() {
+      var isDark = document.body.getAttribute('data-theme') === 'dark';
+      var icons = qsa('.theme-toggle-icon');
+      icons.forEach(function(icon) {
+        icon.textContent = isDark ? '☀️' : '🌙';
+      });
+      
+      // 更新 Dock 栏按钮的 label
+      var dockBtnLabel = qs('#themeToggleBtnDock .app-dock__label');
+      if (dockBtnLabel) {
+        dockBtnLabel.textContent = isDark ? '日间模式' : '夜间模式';
+      }
+    }
+
+    // 初始化图标状态
+    updateThemeIcons();
+
+    var btns = qsa('.js-theme-toggle');
+    btns.forEach(function(btn) {
       btn.addEventListener('click', function () {
         var current = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
         var next = current === 'dark' ? 'light' : 'dark';
@@ -35,8 +53,9 @@
           document.body.removeAttribute('data-theme');
         }
         DataStore.setSavedTheme(next === 'dark' ? 'dark' : 'light');
+        updateThemeIcons();
       });
-    }
+    });
   }
 
   // --- 毛玻璃效果切换 ---
@@ -227,6 +246,13 @@
       } else {
         avatarImg.src = 'https://api.dicebear.com/7.x/initials/svg?seed=CL';
       }
+    }
+
+    if (currentUser) {
+      var menuName = qs('#menuUserName');
+      var menuId = qs('#menuUserId');
+      if (menuName) menuName.textContent = currentUser.nickname || currentUser.username || '同学';
+      if (menuId) menuId.textContent = '@' + (currentUser.username || currentUser.id || 'user');
     }
 
     qsa('[data-auth-visible]').forEach(function (el) {
@@ -513,6 +539,12 @@
     var searchForm = qs('.navbar__search');
     var searchInput = qs('#globalSearchInput');
     if (searchForm && searchInput) {
+      // Real-time search
+      searchInput.addEventListener('input', function() {
+        currentKeyword = searchInput.value.trim();
+        renderFeed();
+      });
+
       searchForm.addEventListener('submit', function (e) {
         e.preventDefault();
         currentKeyword = searchInput.value.trim();

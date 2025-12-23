@@ -28,22 +28,69 @@
   background-color: var(--color-surface);
 }
 
+/* Auth Page Dark Mode Support for Video Background */
+body[data-theme='dark'] .auth-promo-section {
+  background-image: none !important;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+body[data-theme='dark'] .main--auth {
+  background-color: rgba(31, 41, 51, 0.75); /* Semi-transparent dark */
+  backdrop-filter: blur(12px);
+}
+
 /* 首页布局：动态流 + 侧边栏 */
 
 .main--home {
-  display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(260px, var(--sidebar-width));
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   gap: 56px;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
   padding: 20px 24px 32px;
+  position: relative;
 }
 
-/* 首页在桌面端为左侧 Dock 预留空间，形成应用式布局 */
-@media (min-width: 1100px) {
-  body[data-page='index'] .hero,
-  body[data-page='index'] .main--home {
-    padding-left: 96px;
+/* 桌面端布局适配 */
+@media (min-width: 1024px) {
+  /* 中等屏幕：侧边栏跟随内容流（Sticky），整体居中 */
+  .sidebar {
+    position: sticky;
+    top: calc(var(--navbar-height) + 24px);
+    width: 260px; /* 稍微缩小宽度以适应笔记本 */
+    height: calc(100vh - var(--navbar-height) - 48px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  body[data-page='index'] .hero {
+    padding: 0;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* 大屏幕：完全对称布局，侧边栏固定右侧 */
+/* 降低断点以支持 1366px/1400px 等主流笔记本/显示器 */
+@media (min-width: 1350px) {
+  .main--home {
+    /* 左右预留相等空间，实现绝对居中 */
+    padding-left: 310px;
+    padding-right: 310px;
+  }
+  
+  .sidebar {
+    position: fixed;
+    width: 280px;
+    right: 24px;
+    top: calc(var(--navbar-height) + 24px);
   }
 }
 
@@ -51,6 +98,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  max-width: 720px; /* Limit feed width for readability */
 }
 
 .feed__header {
@@ -782,10 +831,19 @@ body[data-theme='dark'].no-glass-effect .main--detail-split {
 }
 
 /* 详情页在桌面端为左侧 Dock 预留空间 */
-@media (min-width: 1100px) {
+@media (min-width: 1300px) {
   body[data-page='detail'] .main--detail-split {
-    margin-left: 96px;
-    max-width: calc(1200px - 96px);
+    margin: 20px auto;
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 1100px) and (max-width: 1299px) {
+  body[data-page='detail'] .main--detail-split {
+    margin-left: 110px;
+    margin-right: 20px;
+    width: auto;
+    max-width: 1200px;
   }
 }
 

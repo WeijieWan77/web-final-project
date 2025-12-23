@@ -467,6 +467,11 @@ body[data-theme='dark'] .app-dock__item--active .app-dock__icon {
   background: transparent;
   padding: 6px 4px;
   font-size: var(--font-size-sm);
+  color: var(--color-text-main);
+}
+
+.navbar__search input[type='search']::placeholder {
+  color: var(--color-text-muted);
 }
 
 .navbar__search button {
@@ -521,18 +526,90 @@ body[data-theme='dark'] .app-dock__item--active .app-dock__icon {
 
 .navbar__user {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navbar__user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background-color: var(--color-surface-soft);
+  display: block;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar__user-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px var(--color-primary-soft);
+}
+
+.navbar__user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.navbar__user-trigger {
+  width: 20px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  transition: color 0.2s ease;
+  border-radius: 4px;
+}
+
+.navbar__user-trigger:hover {
+  color: var(--color-text-main);
+  background-color: rgba(0,0,0,0.05);
+}
+
+body[data-theme='dark'] .navbar__user-trigger:hover {
+  background-color: rgba(255,255,255,0.1);
 }
 
 .navbar__user-menu {
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  min-width: 160px;
-  padding: 8px 0;
+  min-width: 220px;
+  padding: 0;
   background-color: var(--color-surface);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-elevated);
   display: none;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  z-index: 1000;
+}
+
+/* 用户信息卡片 (Dropdown Header) */
+.user-menu-header {
+  padding: 16px;
+  background: linear-gradient(to right, var(--color-primary-soft), transparent);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.user-menu-name {
+  font-weight: 600;
+  color: var(--color-text-main);
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.user-menu-id {
+  font-size: 12px;
+  color: var(--color-text-muted);
 }
 
 .navbar__user-menu a,
@@ -540,9 +617,13 @@ body[data-theme='dark'] .app-dock__item--active .app-dock__icon {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 8px 14px;
+  padding: 10px 16px;
   background: transparent;
   font-size: var(--font-size-sm);
+  color: var(--color-text-main);
+  transition: background-color 0.2s;
+  border: none;
+  cursor: pointer;
 }
 
 .navbar__user-menu a:hover,
@@ -550,8 +631,15 @@ body[data-theme='dark'] .app-dock__item--active .app-dock__icon {
   background-color: var(--color-surface-soft);
 }
 
-.navbar__user-menu.is-open {
+.navbar__user-menu.is-open,
+.navbar__user:hover .navbar__user-menu {
   display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* 顶部跑马灯 */

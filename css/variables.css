@@ -61,21 +61,8 @@ body[data-theme='dark'] {
   --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.6);
 }
 
-body {
-  background-color: var(--color-bg);
-  color: var(--color-text-main);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-md);
-}
-
-/* 首页背景：弥散光感 + 噪点纹理 */
-body[data-page='index'] {
-  position: relative;
-  background: var(--color-bg);
-}
-
-/* 视频背景 */
-body[data-page='index'] .bg-video {
+/* 视频背景 - 全局生效 */
+.bg-video {
   position: fixed;
   top: 0;
   left: 0;
@@ -88,22 +75,23 @@ body[data-page='index'] .bg-video {
 }
 
 /* 默认（日间模式） */
-body[data-page='index'] .bg-video--day {
+.bg-video--day {
   opacity: 1;
 }
-body[data-page='index'] .bg-video--night {
+.bg-video--night {
   opacity: 0;
 }
 
 /* 夜间模式 */
-body[data-page='index'][data-theme='dark'] .bg-video--day {
+body[data-theme='dark'] .bg-video--day {
   opacity: 0;
 }
-body[data-page='index'][data-theme='dark'] .bg-video--night {
+body[data-theme='dark'] .bg-video--night {
   opacity: 1;
 }
 
-body[data-page='index']::before {
+/* 全局极光背景效果 */
+body::before {
   content: '';
   position: fixed;
   inset: 0;
@@ -115,6 +103,21 @@ body[data-page='index']::before {
   pointer-events: none;
   z-index: 0;
   animation: aurora-move 28s ease-in-out infinite alternate;
+}
+
+/* 移除 body 默认背景色，以便显示视频 */
+body {
+  background-color: transparent;
+  color: var(--color-text-main);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+}
+
+/* 针对特定页面可能需要背景色的情况，可以在 layout.css 中覆盖，
+   但为了视频背景，这里保持透明 */
+body[data-page='index'] {
+  position: relative;
+  /* background: transparent; - 已合并到全局 */
 }
 
 body[data-page='index']::after {
