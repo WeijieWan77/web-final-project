@@ -84,6 +84,23 @@ body[data-page='index'] .bg-video {
   object-fit: cover;
   z-index: -1;
   pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+/* 默认（日间模式） */
+body[data-page='index'] .bg-video--day {
+  opacity: 1;
+}
+body[data-page='index'] .bg-video--night {
+  opacity: 0;
+}
+
+/* 夜间模式 */
+body[data-page='index'][data-theme='dark'] .bg-video--day {
+  opacity: 0;
+}
+body[data-page='index'][data-theme='dark'] .bg-video--night {
+  opacity: 1;
 }
 
 body[data-page='index']::before {
@@ -112,12 +129,12 @@ body[data-page='index']::after {
   z-index: 0;
 }
 
-/* 夜间模式：在视频背景上叠加80%透明度的黑色遮罩 */
+/* 夜间模式：在视频背景上叠加40%透明度的黑色遮罩，让夜景视频更清晰 */
 body[data-page='index'][data-theme='dark']::after {
   background-image: 
     repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.015) 2px, rgba(0, 0, 0, 0.015) 4px),
     repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 0, 0, 0.015) 2px, rgba(0, 0, 0, 0.015) 4px),
-    rgba(0, 0, 0, 0.8);
+    rgba(0, 0, 0, 0.4);
   opacity: 1;
 }
 
