@@ -15,7 +15,7 @@ body[data-page='review'] {
   top: 0px;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 9999;
   height: var(--navbar-height);
   display: flex;
   align-items: center;
@@ -104,6 +104,7 @@ body[data-page='checkin'][data-theme='dark'] .navbar {
 body[data-page='groups'] .navbar,
 body[data-page='profile'] .navbar,
 body[data-page='detail'] .navbar,
+body[data-page='review'] .navbar,
 body[data-page='admin'] .navbar {
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px) saturate(180%);
@@ -117,6 +118,7 @@ body[data-page='admin'] .navbar {
 body[data-page='groups'][data-theme='dark'] .navbar,
 body[data-page='profile'][data-theme='dark'] .navbar,
 body[data-page='detail'][data-theme='dark'] .navbar,
+body[data-page='review'][data-theme='dark'] .navbar,
 body[data-page='admin'][data-theme='dark'] .navbar {
   background-color: rgba(20, 20, 20, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -591,6 +593,15 @@ body[data-theme='dark'] .navbar__user-trigger:hover {
   overflow: hidden;
   border: 1px solid var(--color-border-subtle);
   z-index: 1000;
+  transform: translate3d(0, 0, 100px); /* 确保在 3D 空间中最前 */
+}
+
+/* 强制重置溢出，防止下拉菜单被父级裁切 */
+.navbar, 
+.navbar__right, 
+.navbar__user {
+  overflow: visible !important; 
+  /* 注意：如果有 horizontal scroll 需求，可能需要单独处理，但对于 navbar 来说通常不需要 */
 }
 
 /* 用户信息卡片 (Dropdown Header) */
@@ -659,17 +670,19 @@ body[data-theme='dark'] .top-marquee {
 }
 
 .top-marquee__content {
-  padding: 6px 16px;
+  display: inline-block;
+  padding: 6px 0;
+  padding-left: 100%;
   white-space: nowrap;
-  animation: marquee-scroll 18s linear infinite;
+  animation: marquee-scroll 25s linear infinite;
 }
 
 @keyframes marquee-scroll {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translate3d(-100%, 0, 0);
   }
 }
 
@@ -1490,15 +1503,15 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .post-card
   padding-top: 12px;
   position: relative;
   z-index: 2;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.post-card:hover .post-card__footer {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* 移除原有的悬停显示逻辑，因为它已经是常驻的了 */
+/* .post-card:hover .post-card__footer {
+  opacity: 1;
+  transform: translateY(0);
+} */
 
 .post-card__actions {
   display: inline-flex;
@@ -1513,8 +1526,8 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .post-card
   padding: 8px 12px;
   border-radius: 12px;
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  background-color: var(--color-surface-soft);
+  color: #6B7280; /* 使用中灰色作为默认颜色 */
+  background-color: transparent; /* 默认透明背景，更干净 */
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1522,9 +1535,29 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .post-card
 }
 
 .post-card__action:hover {
-  background-color: var(--color-primary-soft);
-  color: var(--color-primary);
+  background-color: var(--color-surface-soft); /* 悬停时显示浅色背景 */
   transform: translateY(-1px);
+}
+
+/* 各个按钮具体的悬停颜色 */
+.post-card__action--like:hover {
+  color: var(--color-primary);
+  background-color: rgba(255, 79, 121, 0.1);
+}
+
+.post-card__action--comment:hover {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.post-card__action--repost:hover {
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.post-card__action--favorite:hover {
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.1);
 }
 
 .post-card__action:active {
@@ -1990,13 +2023,17 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .post-card
 .widget-calendar {
   padding: 14px 12px 12px;
   border-radius: 16px;
-  background: #ffffff;
+  background: rgba(0, 0, 0, 0.05); /* 与活跃用户列表背景色保持一致 */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2); /* 边框调淡一点以适配深色背景 */
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 /* 夜间模式：日历Widget背景 */
 body[data-theme='dark'] .widget-calendar {
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
@@ -2093,7 +2130,7 @@ body[data-theme='dark'] .widget-weather {
   border-radius: 16px;
   overflow: hidden;
   min-height: 120px;
-  background-image: url('https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=1200');
+  background-image: url('../img/Campfire guitar.jpg');
   background-size: cover;
   background-position: center;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -2203,16 +2240,27 @@ body[data-theme='dark'] .hot-topic-chip--hot {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px;
+  padding: 12px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  background-color: rgba(0, 0, 0, 0.05); /* 加深背景色，使其更明显 */
+  margin-bottom: 10px; /* 增加间距 */
 }
 
 .active-user-rank-item:hover {
-  background-color: var(--color-surface-soft);
-  transform: translateX(4px);
+  background-color: rgba(0, 0, 0, 0.08); /* 悬停背景变深 */
+  transform: scale(1.02); /* 悬停微缩放 */
+}
+
+/* 夜间模式适配 */
+body[data-theme='dark'] .active-user-rank-item {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+body[data-theme='dark'] .active-user-rank-item:hover {
+  background-color: rgba(255, 255, 255, 0.10);
 }
 
 .active-user-rank-item__rank {
@@ -3689,46 +3737,9 @@ body[data-theme='dark'] .checkin-history-item:hover {
   margin-top: 6px;
 }
 
-/* 自定义选择器 */
-.review-select {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.review-select select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-weight: 600;
-  min-width: 120px;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  position: relative;
-}
-
-.review-select select:focus {
-  outline: 2px solid rgba(255, 255, 255, 0.4);
-}
-
-.review-select select::-ms-expand {
-  display: none;
-}
-
-.review-select select {
-  background-image: linear-gradient(45deg, transparent 50%, #fff 50%),
-    linear-gradient(135deg, #fff 50%, transparent 50%);
-  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-}
+/* 废弃的 .review-select 样式，已替换为 .year-selector */
+/* .review-select { ... } */
+/* .review-select select { ... } */
 
 /* 卡片网格 */
 .review-section-grid {
@@ -3890,15 +3901,103 @@ body[data-theme='dark'] .checkin-history-item:hover {
 
 .review-floating-controls {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 80px;
+  right: 24px;
   z-index: 20;
-  backdrop-filter: blur(12px);
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: var(--shadow-elevated);
+}
+
+/* 年份选择器 - Glassmorphism */
+.year-selector {
+  position: relative;
+  display: inline-block;
+}
+
+.year-selector__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(59, 130, 246, 0.9); /* 使用鲜艳的蓝色 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600; /* 加粗文字 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); /* 添加投影增加层次感 */
+}
+
+.year-selector__trigger:hover {
+  background: rgba(37, 99, 235, 1); /* Hover 时加深 */
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
+}
+
+.year-selector__icon {
+  transition: transform 0.3s ease;
+}
+
+/* 展开状态 */
+.year-selector.is-open .year-selector__trigger {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.year-selector.is-open .year-selector__icon {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单 */
+.year-selector__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 120px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  list-style: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.year-selector.is-open .year-selector__menu {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 选项 */
+.year-selector__option {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: center;
+}
+
+.year-selector__option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.year-selector__option.is-selected {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-weight: 600;
 }
 
 .review-scroll-container {
@@ -4086,8 +4185,9 @@ body[data-theme='dark'] .checkin-history-item:hover {
 /* Hero / Bento Grid */
 .hero {
   position: relative;
-  padding: 96px 0 72px;
-  overflow: hidden;
+  z-index: 0;
+  padding: 96px 0 240px; /* Increase padding further to prevent clipping */
+  overflow: visible; /* Allow 3D elements to extend */
   perspective: 1400px;
   background: radial-gradient(120% 120% at 50% 20%, rgba(99, 102, 241, 0.12), rgba(59, 130, 246, 0.06) 40%, rgba(0, 0, 0, 0) 70%);
 }
@@ -4104,6 +4204,7 @@ body[data-theme='dark'] .checkin-history-item:hover {
 
 .hero__grid {
   position: relative;
+  left: 80px;
   z-index: 1;
   max-width: 1100px;
   margin: 0 auto;
@@ -4239,79 +4340,76 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
   grid-column: span 3;
   grid-row: span 3;
   padding: 24px;
-  background: linear-gradient(135deg, #4338ca, #6366f1);
+  /* Option A: 梦幻弥散光风格 - 基础样式 */
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.5) 0px, transparent 50%);
   color: #fff;
-  box-shadow: 0 25px 60px rgba(99, 102, 241, 0.35);
+  /* 增加微弱的噪点纹理消除塑料感 - 可选，这里仅模拟光效 */
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.45);
+  /* 确保文字清晰 */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* 首页 headline 卡片透明效果 - 默认更透明（仅在启用毛玻璃时） */
+/* 首页 headline 卡片透明效果 - 重写以应用弥散光 */
 body[data-page='index']:not(.no-glass-effect) .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.4), rgba(99, 102, 241, 0.45));
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  transition: background 0.3s ease;
+  background-color: rgba(15, 23, 42, 0.9); /* 加深底色 */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.5) 0px, transparent 55%), /* 降低光斑亮度 */
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.5) 0px, transparent 55%),
+    linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%); /* 增加纵向渐变遮罩 */
+  backdrop-filter: blur(40px) saturate(120%);
+  -webkit-backdrop-filter: blur(40px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.1); /* 精致描边 */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* 不透明模式（禁用透明度时） */
-body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.9), rgba(99, 102, 241, 0.95));
-}
-
-/* 悬停时降低透明度 */
+/* 悬停时增强光感 - Float & Glow */
 body[data-page='index']:not(.no-glass-effect) .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.85), rgba(99, 102, 241, 0.9));
+  transform: scale(1.02) translateY(-4px);
+  filter: brightness(1.02) saturate(1.1);
+  box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.5);
+  /* 移除原有的背景修改代码 */
 }
 
-/* 不透明模式悬停 */
-body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(99, 102, 241, 1));
+/* 策略一：文字加阴影 (Text Shadow Injection) */
+.hero__card:hover h1,
+.hero__card:hover h3,
+.hero__card:hover p,
+.hero__card:hover .hero__pill {
+  /* 增加黑色柔光阴影，让文字与背景分离 */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
-/* 非毛玻璃样式（禁用毛玻璃时）- 透明模式 */
-body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.6), rgba(99, 102, 241, 0.65));
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: background 0.3s ease;
-}
-
-/* 夜间模式：无毛玻璃透明模式下的Hero headline卡片 */
-body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.4), rgba(99, 102, 241, 0.45));
-}
-
-body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.75), rgba(99, 102, 241, 0.8));
-}
-
-/* 夜间模式：无毛玻璃透明模式悬停时的Hero headline卡片 */
-body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.5), rgba(99, 102, 241, 0.55));
-}
-
-/* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
-body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline {
-  background: linear-gradient(135deg, #4338ca, #6366f1);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: background 0.3s ease;
-}
-
-/* 夜间模式：无毛玻璃不透明模式下的Hero headline卡片 */
+/* 覆盖其他可能冲突的旧选择器 */
+body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline,
+body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline,
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline,
+body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline,
 body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.8), rgba(99, 102, 241, 0.85));
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.5) 0px, transparent 50%),
+    linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline:hover {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-}
-
-/* 夜间模式：无毛玻璃不透明模式悬停时的Hero headline卡片 */
+/* 统一悬停效果覆盖 */
+body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline:hover,
+body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover,
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover,
+body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline:hover,
 body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(99, 102, 241, 0.95));
+   background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.8) 0px, transparent 60%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.8) 0px, transparent 60%);
 }
 
-.hero__eyebrow {
+.hero__card .hero__eyebrow {
   display: inline-flex;
   padding: 6px 10px;
   border-radius: 999px;
@@ -4319,19 +4417,24 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
   font-size: var(--font-size-xs);
   letter-spacing: 0.02em;
   margin-bottom: 10px;
+  color: #ffffff;
 }
 
 .hero__card--headline h1 {
   font-size: 34px;
   line-height: 1.2;
   margin-bottom: 12px;
+  color: #ffffff;
 }
 
-.hero__lead {
+.hero__card .hero__lead {
   font-size: var(--font-size-md);
-  opacity: 0.9;
+  font-weight: 500; /* Increased from regular (400) to medium */
+  opacity: 1; /* Increased opacity for better contrast */
+  color: #ffffff; /* Pure white */
   line-height: 1.6;
   margin-bottom: 18px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4); /* Slight shadow for separation */
 }
 
 .hero__actions {
@@ -4390,6 +4493,16 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
 .hero__card--image {
   padding: 0;
   overflow: hidden;
+  border-radius: 18px;
+  /* Fix for 3D transform clipping issue */
+  transform: translateZ(0); 
+}
+
+.hero__card--image .hero__img,
+.hero__card--image .hero__overlay {
+  border-radius: 18px;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
 }
 
 .hero__img {
@@ -4401,11 +4514,60 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
 }
 
 .hero__img--1 {
-  background-image: url('https://images.pexels.com/photos/1401796/pexels-photo-1401796.jpeg?auto=compress&cs=tinysrgb&w=1200');
+  background-image: url('../img/Sunset Run.jpg');
 }
 
 .hero__img--2 {
-  background-image: url('https://images.pexels.com/photos/3747485/pexels-photo-3747485.jpeg?auto=compress&cs=tinysrgb&w=1200');
+  background-image: url('../img/Library.jpg');
+}
+
+/* Feature Cards with Background Images - using !important to override glass effect styles */
+.hero__card--dance {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Street dance.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--dance p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.hero__card--food {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Night snack.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--food p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.hero__card--study {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Finals Study.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--study p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.hero__card--movie {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Outdoor Movie.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--movie p {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .hero__overlay {
@@ -4461,8 +4623,9 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
 /* Hero / Bento Grid */
 .hero {
   position: relative;
-  padding: 96px 0 72px;
-  overflow: hidden;
+  z-index: 0;
+  padding: 96px 0 240px; /* Increase padding further to prevent clipping */
+  overflow: visible; /* Allow 3D elements to extend */
   perspective: 1400px;
   background: radial-gradient(120% 120% at 50% 20%, rgba(99, 102, 241, 0.12), rgba(59, 130, 246, 0.06) 40%, rgba(0, 0, 0, 0) 70%);
 }
@@ -4479,6 +4642,7 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
 
 .hero__grid {
   position: relative;
+  left: 80px;
   z-index: 1;
   max-width: 1100px;
   margin: 0 auto;
@@ -4614,79 +4778,76 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
   grid-column: span 3;
   grid-row: span 3;
   padding: 24px;
-  background: linear-gradient(135deg, #4338ca, #6366f1);
+  /* Option A: 梦幻弥散光风格 - 基础样式 */
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.5) 0px, transparent 50%);
   color: #fff;
-  box-shadow: 0 25px 60px rgba(99, 102, 241, 0.35);
+  /* 增加微弱的噪点纹理消除塑料感 - 可选，这里仅模拟光效 */
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.45);
+  /* 确保文字清晰 */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* 首页 headline 卡片透明效果 - 默认更透明（仅在启用毛玻璃时） */
+/* 首页 headline 卡片透明效果 - 重写以应用弥散光 */
 body[data-page='index']:not(.no-glass-effect) .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.4), rgba(99, 102, 241, 0.45));
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  transition: background 0.3s ease;
+  background-color: rgba(15, 23, 42, 0.9); /* 加深底色 */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.5) 0px, transparent 55%), /* 降低光斑亮度 */
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.5) 0px, transparent 55%),
+    linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%); /* 增加纵向渐变遮罩 */
+  backdrop-filter: blur(40px) saturate(120%);
+  -webkit-backdrop-filter: blur(40px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.1); /* 精致描边 */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* 不透明模式（禁用透明度时） */
-body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.9), rgba(99, 102, 241, 0.95));
-}
-
-/* 悬停时降低透明度 */
+/* 悬停时增强光感 - Float & Glow */
 body[data-page='index']:not(.no-glass-effect) .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.85), rgba(99, 102, 241, 0.9));
+  transform: scale(1.02) translateY(-4px);
+  filter: brightness(1.02) saturate(1.1);
+  box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.5);
+  /* 移除原有的背景修改代码 */
 }
 
-/* 不透明模式悬停 */
-body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(99, 102, 241, 1));
+/* 策略一：文字加阴影 (Text Shadow Injection) */
+.hero__card:hover h1,
+.hero__card:hover h3,
+.hero__card:hover p,
+.hero__card:hover .hero__pill {
+  /* 增加黑色柔光阴影，让文字与背景分离 */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
-/* 非毛玻璃样式（禁用毛玻璃时）- 透明模式 */
-body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.6), rgba(99, 102, 241, 0.65));
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: background 0.3s ease;
-}
-
-/* 夜间模式：无毛玻璃透明模式下的Hero headline卡片 */
-body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.4), rgba(99, 102, 241, 0.45));
-}
-
-body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.75), rgba(99, 102, 241, 0.8));
-}
-
-/* 夜间模式：无毛玻璃透明模式悬停时的Hero headline卡片 */
-body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.5), rgba(99, 102, 241, 0.55));
-}
-
-/* 非毛玻璃样式（禁用毛玻璃时）- 不透明模式 */
-body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline {
-  background: linear-gradient(135deg, #4338ca, #6366f1);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: background 0.3s ease;
-}
-
-/* 夜间模式：无毛玻璃不透明模式下的Hero headline卡片 */
+/* 覆盖其他可能冲突的旧选择器 */
+body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline,
+body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline,
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline,
+body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline,
 body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline {
-  background: linear-gradient(135deg, rgba(67, 56, 202, 0.8), rgba(99, 102, 241, 0.85));
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.5) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.5) 0px, transparent 50%),
+    linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline:hover {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-}
-
-/* 夜间模式：无毛玻璃不透明模式悬停时的Hero headline卡片 */
+/* 统一悬停效果覆盖 */
+body[data-page='index']:not(.no-glass-effect).no-opacity .hero__card--headline:hover,
+body[data-page='index'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover,
+body[data-page='index'][data-theme='dark'].no-glass-effect:not(.no-opacity) .hero__card--headline:hover,
+body[data-page='index'].no-glass-effect.no-opacity .hero__card--headline:hover,
 body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__card--headline:hover {
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(99, 102, 241, 0.95));
+   background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.8) 0px, transparent 60%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.8) 0px, transparent 60%);
 }
 
-.hero__eyebrow {
+.hero__card .hero__eyebrow {
   display: inline-flex;
   padding: 6px 10px;
   border-radius: 999px;
@@ -4694,19 +4855,24 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
   font-size: var(--font-size-xs);
   letter-spacing: 0.02em;
   margin-bottom: 10px;
+  color: #ffffff;
 }
 
 .hero__card--headline h1 {
   font-size: 34px;
   line-height: 1.2;
   margin-bottom: 12px;
+  color: #ffffff;
 }
 
-.hero__lead {
+.hero__card .hero__lead {
   font-size: var(--font-size-md);
-  opacity: 0.9;
+  font-weight: 500; /* Increased from regular (400) to medium */
+  opacity: 1; /* Increased opacity for better contrast */
+  color: #ffffff; /* Pure white */
   line-height: 1.6;
   margin-bottom: 18px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4); /* Slight shadow for separation */
 }
 
 .hero__actions {
@@ -4765,6 +4931,16 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
 .hero__card--image {
   padding: 0;
   overflow: hidden;
+  border-radius: 18px;
+  /* Fix for 3D transform clipping issue */
+  transform: translateZ(0); 
+}
+
+.hero__card--image .hero__img,
+.hero__card--image .hero__overlay {
+  border-radius: 18px;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
 }
 
 .hero__img {
@@ -4776,11 +4952,60 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
 }
 
 .hero__img--1 {
-  background-image: url('https://images.pexels.com/photos/1401796/pexels-photo-1401796.jpeg?auto=compress&cs=tinysrgb&w=1200');
+  background-image: url('../img/Sunset Run.jpg');
 }
 
 .hero__img--2 {
-  background-image: url('https://images.pexels.com/photos/3747485/pexels-photo-3747485.jpeg?auto=compress&cs=tinysrgb&w=1200');
+  background-image: url('../img/Library.jpg');
+}
+
+/* Feature Cards with Background Images - using !important to override glass effect styles */
+.hero__card--dance {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Street dance.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--dance p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.hero__card--food {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Night snack.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--food p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.hero__card--study {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Finals Study.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--study p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.hero__card--movie {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('../img/Outdoor Movie.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: white !important;
+  border-radius: 24px;
+}
+
+.hero__card--movie p {
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .hero__overlay {
@@ -4887,7 +5112,7 @@ body[data-page='index'][data-theme='dark'].no-glass-effect.no-opacity .hero__car
 .emoji-picker-float {
   position: absolute;
   bottom: 60px; /* 根据你的布局微调 */
-  right: 0;
+  right: 55px;
   background: #fff;
   border-radius: 12px;
   box-shadow: var(--shadow-elevated);

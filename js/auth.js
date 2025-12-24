@@ -63,11 +63,29 @@
       return result;
     }
 
-    const finalUser = DataStore.addUser({
+      // img/user picture 目录下有 8 张图片，随机选一张作为默认头像
+      var defaultAvatar = 'img/user picture/adventurer-1766570006973.jpg';
+      if (avatar) {
+        defaultAvatar = avatar;
+      } else {
+        var localAvatars = [
+          'img/user picture/adventurer-1766570006973.jpg',
+          'img/user picture/adventurer-1766570011526.jpg',
+          'img/user picture/adventurer-1766570014487.jpg',
+          'img/user picture/adventurer-1766570016794.jpg',
+          'img/user picture/adventurer-1766570021937.jpg',
+          'img/user picture/adventurer-1766570024612.jpg',
+          'img/user picture/adventurer-1766570026574.jpg',
+          'img/user picture/adventurer-1766570028745.jpg'
+        ];
+        defaultAvatar = localAvatars[Math.floor(Math.random() * localAvatars.length)];
+      }
+
+      const finalUser = DataStore.addUser({
       studentId: pending.studentId,
       nickname: pending.nickname,
       password: pending.password,
-      avatar: avatar || 'https://api.dicebear.com/7.x/initials/svg?seed=CL',
+      avatar: defaultAvatar,
       tags: Array.isArray(tags) ? tags.slice(0, 8) : [],
     });
 

@@ -48,8 +48,9 @@ body[data-theme='dark'] .main--auth {
   gap: 56px;
   max-width: 100%;
   margin: 0;
-  padding: 20px 24px 32px;
+  padding: 40px 24px 32px;
   position: relative;
+  left: 50px;
 }
 
 /* 桌面端布局适配 */
@@ -175,16 +176,22 @@ body[data-theme='dark'] .feed-highlight-row {
   max-width: 260px;
   scroll-snap-align: start;
   border-radius: 16px;
-  padding: 12px 12px 14px;
+  padding: 20px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   position: relative;
   overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.highlight-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
 .highlight-card::before {
@@ -200,46 +207,46 @@ body[data-theme='dark'] .feed-highlight-row {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  width: fit-content;
+  backdrop-filter: blur(4px);
 }
 
 .highlight-card__title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 4px;
 }
 
 .highlight-card__meta {
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .highlight-card__desc {
   font-size: 12px;
-  color: var(--color-text-main);
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
 }
 
 .highlight-card--event {
-  background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%),
-    rgba(15, 23, 42, 0.96);
-  color: #e5e7eb;
+  background: linear-gradient(135deg, #0f4c75 0%, #3282b8 100%);
+  color: #ffffff;
 }
 
 .highlight-card--group {
-  background: radial-gradient(circle at 100% 0, rgba(244, 114, 182, 0.3), transparent 55%),
-    rgba(30, 64, 175, 0.96);
-  color: #e5e7eb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
 }
 
 .highlight-card--checkin {
-  background: radial-gradient(circle at 0 100%, rgba(52, 211, 153, 0.3), transparent 55%),
-    rgba(8, 47, 73, 0.96);
-  color: #e5e7eb;
-}
-
-.highlight-card--event .highlight-card__meta,
-.highlight-card--group .highlight-card__meta,
-.highlight-card--checkin .highlight-card__meta {
-  color: rgba(226, 232, 240, 0.85);
+  background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+  color: #ffffff;
 }
 
 @media (max-width: 720px) {
@@ -809,7 +816,7 @@ body[data-theme='dark'] .profile-content__panel:hover {
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 0 0 24px 24px;
   box-shadow: 0 18px 40px rgba(148, 163, 184, 0.2);
-  margin-top: 10px;
+  margin-top: calc(var(--navbar-height) + 20px);
 }
 
 /* 夜间模式：详情页 */
@@ -833,14 +840,17 @@ body[data-theme='dark'].no-glass-effect .main--detail-split {
 /* 详情页在桌面端为左侧 Dock 预留空间 */
 @media (min-width: 1300px) {
   body[data-page='detail'] .main--detail-split {
-    margin: 20px auto;
+    margin-top: calc(var(--navbar-height) + 30px);
+    margin-right: auto;
+    margin-bottom: 20px;
+    margin-left: calc((100vw - 1200px) / 2 + 40px); /* 整体向右偏移 60px */
     max-width: 1200px;
   }
 }
 
 @media (min-width: 1100px) and (max-width: 1299px) {
   body[data-page='detail'] .main--detail-split {
-    margin-left: 110px;
+    margin-left: 130px; /* 原 110px，增加 30px */
     margin-right: 20px;
     width: auto;
     max-width: 1200px;
@@ -851,7 +861,7 @@ body[data-theme='dark'].no-glass-effect .main--detail-split {
   .main--detail-split {
     border-radius: 16px;
     height: calc(100vh - var(--navbar-height) - 40px);
-    margin-top: 20px;
+    margin-top: calc(var(--navbar-height) + 50px);
   }
 }
 
@@ -869,14 +879,82 @@ body[data-theme='dark'].no-glass-effect .main--detail-split {
   position: relative;
 }
 
-/* 无图片时的占位符 */
+/* 无图片时的占位符 - 美化版 */
 .detail-media-empty {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  /* 默认使用清新的渐变背景 */
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 增加纹理装饰 */
+.detail-media-empty::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.5;
+}
+
+.detail-media-empty__content {
+  text-align: center;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 40px 60px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  transform: translateY(-20px);
+}
+
+.detail-media-empty__icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.detail-media-empty__text {
+  font-size: 20px;
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  letter-spacing: 4px;
+}
+
+/* 夜间模式适配 */
+body[data-theme='dark'] .detail-media-empty {
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+}
+
+body[data-theme='dark'] .detail-media-empty::before {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+}
+
+body[data-theme='dark'] .detail-media-empty__content {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme='dark'] .detail-media-empty__text {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* 图片轮播容器 */
@@ -1013,6 +1091,10 @@ body[data-theme='dark'] .detail-right {
   margin-top: 10px;
 }
 
+.detail-comment-form {
+  position: relative;
+}
+
 .detail-right__footer {
   padding: 12px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -1032,6 +1114,7 @@ body[data-theme='dark'] .detail-right__footer {
     height: auto;
     min-height: calc(100vh - var(--navbar-height));
     margin-top: 0;
+    padding-top: var(--navbar-height);
     border-radius: 0;
   }
   .detail-left { height: 300px; flex: none; }

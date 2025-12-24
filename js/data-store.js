@@ -7,7 +7,7 @@
 (function (window) {
   const STORAGE_KEYS = {
     users: 'campuslife_users',
-    posts: 'campuslife_posts',
+    posts: 'campuslife_posts_v2',
     comments: 'campuslife_comments',
     currentUserId: 'campuslife_currentUserId',
     rememberedStudentId: 'campuslife_rememberedStudentId',
@@ -48,6 +48,42 @@
     const hasPosts = !!window.localStorage.getItem(STORAGE_KEYS.posts);
     const hasComments = !!window.localStorage.getItem(STORAGE_KEYS.comments);
 
+    // 强制更新头像为本地路径的迁移逻辑
+    if (hasUsers) {
+      const existingUsers = safeParse(window.localStorage.getItem(STORAGE_KEYS.users), []);
+      let changed = false;
+      const avatarMap = {
+        'u_admin': 'img/user picture/adventurer-1766570006973.jpg',
+        'u_10001': 'img/user picture/adventurer-1766570014487.jpg',
+        'u_10002': 'img/user picture/adventurer-1766570021937.jpg'
+      };
+
+      existingUsers.forEach(u => {
+        if (avatarMap[u.id] && u.avatar !== avatarMap[u.id]) {
+          u.avatar = avatarMap[u.id];
+          changed = true;
+        } else if (u.avatar && u.avatar.includes('dicebear')) {
+          // 如果是其他使用旧 dicebear 头像的用户，随机分配一个本地头像
+          const localAvatars = [
+            'img/user picture/adventurer-1766570006973.jpg',
+            'img/user picture/adventurer-1766570011526.jpg',
+            'img/user picture/adventurer-1766570014487.jpg',
+            'img/user picture/adventurer-1766570016794.jpg',
+            'img/user picture/adventurer-1766570021937.jpg',
+            'img/user picture/adventurer-1766570024612.jpg',
+            'img/user picture/adventurer-1766570026574.jpg',
+            'img/user picture/adventurer-1766570028745.jpg'
+          ];
+          u.avatar = localAvatars[Math.floor(Math.random() * localAvatars.length)];
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        setItemJSON(STORAGE_KEYS.users, existingUsers);
+      }
+    }
+
     if (hasUsers && hasPosts && hasComments) return;
 
     const now = Date.now();
@@ -57,7 +93,7 @@
         id: 'u_admin',
         studentId: 'admin',
         password: 'hashed_admin_123456', // 对应密码：123456（模拟加密后）
-        avatar: 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=CampusAdmin',
+        avatar: 'img/user picture/adventurer-1766570006973.jpg',
         nickname: '校园管理员',
         bio: '维护校园社区秩序的小助手。',
         tags: ['#管理员', '#文明校园'],
@@ -69,7 +105,7 @@
         id: 'u_10001',
         studentId: '20230001',
         password: 'hashed_20230001_123456',
-        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=CL1',
+        avatar: 'img/user picture/adventurer-1766570014487.jpg',
         nickname: '图书馆的猫',
         bio: '常出没于自习室和图书馆的一只猫。',
         tags: ['#考研', '#早起打卡', '#学习分享'],
@@ -81,7 +117,7 @@
         id: 'u_10002',
         studentId: '20230002',
         password: 'hashed_20230002_123456',
-        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=CL2',
+        avatar: 'img/user picture/adventurer-1766570021937.jpg',
         nickname: '操场跑者',
         bio: '日更三公里，欢迎一起夜跑。',
         tags: ['#运动', '#跑步', '#健康生活'],
@@ -97,7 +133,7 @@
         authorId: 'u_10001',
         content: '今晚图书馆自习到十点，有没有一起冲刺期末的？分享一下效率学习的小技巧~',
         images: [
-          'https://images.pexels.com/photos/3747485/pexels-photo-3747485.jpeg',
+          'img/Library night.jpg',
         ],
         likes: 8,
         timestamp: now - 1000 * 60 * 60 * 2,
@@ -109,8 +145,8 @@
         authorId: 'u_10002',
         content: '今天操场夜跑三公里收工！风有点大，但跑完真的超级舒服。',
         images: [
-          'https://images.pexels.com/photos/1401796/pexels-photo-1401796.jpeg',
-          'https://images.pexels.com/photos/1048039/pexels-photo-1048039.jpeg',
+          'img/Night Run 1.jpg',
+          'img/Night Run 2.jpg',
         ],
         likes: 12,
         timestamp: now - 1000 * 60 * 60 * 5,
@@ -122,7 +158,7 @@
         authorId: 'u_10002',
         content: '南门那家新开的奶茶店排队好长！不过芝士奶盖真的绝了~',
         images: [
-          'https://images.pexels.com/photos/4342956/pexels-photo-4342956.jpeg',
+          'img/Cheese foam tea.jpg',
         ],
         likes: 20,
         timestamp: now - 1000 * 60 * 60 * 24,
@@ -133,20 +169,22 @@
         id: 'p_4',
         authorId: 'u_10001',
         content: '期末周打卡 Day 3：今天在实验室写了一天报告，头有点大，晚上打算去操场走走放松一下。',
-        images: [],
+        images: [
+            'img/Glasses on book.jpg',
+        ],
         likes: 5,
         timestamp: now - 1000 * 60 * 30,
         tags: ['#期末周', '#报告'],
-        visibility: 'friends',
+        visibility: 'public',
       },
       {
         id: 'p_5',
         authorId: 'u_10001',
         content: '分享一份自制的复习计划表，有需要的同学可以自取～',
         images: [
-          'https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg',
-          'https://images.pexels.com/photos/167682/pexels-photo-167682.jpeg',
-          'https://images.pexels.com/photos/3746311/pexels-photo-3746311.jpeg',
+          'img/Study planner.jpg',
+          'img/Library aesthetic.jpg',
+          'img/Finals Study.jpg',
         ],
         likes: 15,
         timestamp: now - 1000 * 60 * 90,
@@ -539,7 +577,7 @@
       id: generateId('g'),
       name: name,
       description: description || '',
-      avatar: avatar || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(name),
+      avatar: avatar || 'img/user picture/adventurer-1766570006973.jpg', // 默认使用本地头像
       creatorId: creatorId,
       members: [creatorId],
       createdAt: Date.now(),

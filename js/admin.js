@@ -26,11 +26,18 @@
   }
 
   function defaultAvatarForNickname(nickname) {
-    var initials = (nickname || 'CL')
-      .trim()
-      .slice(0, 2)
-      .toUpperCase();
-    return 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(initials);
+    // 改为随机使用本地头像
+    var localAvatars = [
+      'img/user picture/adventurer-1766570006973.jpg',
+      'img/user picture/adventurer-1766570011526.jpg',
+      'img/user picture/adventurer-1766570014487.jpg',
+      'img/user picture/adventurer-1766570016794.jpg',
+      'img/user picture/adventurer-1766570021937.jpg',
+      'img/user picture/adventurer-1766570024612.jpg',
+      'img/user picture/adventurer-1766570026574.jpg',
+      'img/user picture/adventurer-1766570028745.jpg'
+    ];
+    return localAvatars[Math.floor(Math.random() * localAvatars.length)];
   }
 
   function renderUserTable() {
@@ -133,12 +140,13 @@
       if (action === 'reset-avatar') {
         var newAvatar = defaultAvatarForNickname(user.nickname);
         DataStore.updateUser(userId, { avatar: newAvatar });
-        window.alert('已重置头像');
+        window.alert('已重置该用户头像');
       } else if (action === 'toggle-ban') {
         var isBanned = !user.isBanned;
         DataStore.updateUser(userId, { isBanned: isBanned });
         window.alert(isBanned ? '已封禁该用户' : '已解封该用户');
       }
+      // 重新获取最新数据并渲染，确保状态同步
       renderUserTable();
     });
   }
@@ -160,15 +168,77 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    if (getPageKey() !== 'admin') return;
+  function initAdminPage() {
+    // 1. 权限检查
+    Auth.requireAdmin();
 
-    // 路由保护：非管理员直接重定向
-    Auth.requireAdmin({ redirectTo: 'index.html' });
+    var currentUser = Auth.getCurrentUser();
+
+    // 2. 初始化导航栏用户信息 (复用 main.js 逻辑)
+    // 管理员页没有引入 main.js，需单独处理
+    var avatarImg = document.getElementById('navbarAvatarImg');
+    if (avatarImg && currentUser) {
+      avatarImg.src = currentUser.avatar || 'img/user picture/adventurer-1766570006973.jpg';
+    }
+    var menuName = document.getElementById('menuUserName');
+    var menuId = document.getElementById('menuUserId');
+    if (menuName && currentUser) menuName.textContent = currentUser.nickname || '管理员';
+    if (menuId && currentUser) menuId.textContent = '@' + currentUser.id;
+
+    // 用户菜单交互
+    var userMenuToggle = document.getElementById('userMenuToggle');
+    var userDropdownMenu = document.getElementById('userDropdownMenu');
+    if (userMenuToggle && userDropdownMenu) {
+      userMenuToggle.addEventListener('click', function () {
+        var isOpen = userDropdownMenu.classList.contains('is-open');
+        userDropdownMenu.classList.toggle('is-open', !isOpen);
+        userMenuToggle.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+      });
+      document.addEventListener('click', function (e) {
+        if (!userDropdownMenu.classList.contains('is-open')) return;
+        if (!userDropdownMenu.contains(e.target) && e.target !== userMenuToggle) {
+          userDropdownMenu.classList.remove('is-open');
+          userMenuToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    // 3. 处理菜单项显示/隐藏 (data-auth-visible)
+    qsa('[data-auth-visible]').forEach(function (el) {
+      var vis = el.getAttribute('data-auth-visible');
+      var show = false;
+      if (vis === 'guest') {
+        show = !currentUser;
+      } else if (vis === 'user') {
+        show = !!currentUser;
+      } else if (vis === 'admin') {
+        // 在管理员后台页面，不需要再显示“管理员后台”链接
+        if (el.getAttribute('href') === 'admin.html') {
+            show = false;
+        } else {
+            show = !!currentUser && currentUser.role === 'admin';
+        }
+      }
+      el.style.display = show ? '' : 'none';
+    });
+
+    // 登出逻辑
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+            Auth.logout();
+            window.location.href = 'index.html';
+        });
+    }
 
     renderUserTable();
     renderPostAuditList();
     initUserTableEvents();
     initPostAuditEvents();
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (getPageKey() !== 'admin') return;
+    initAdminPage();
   });
 })(window, document, window.DataStore, window.Auth, window.Render);

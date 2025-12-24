@@ -78,13 +78,28 @@
     // 封面图 (可根据用户设置自定义，这里暂时用随机图或默认)
     var coverEl = qs('#profileCover');
     if (coverEl) {
-      coverEl.style.backgroundImage = `url(${Render.escapeHTML(profileUser.cover || 'https://picsum.photos/seed/profile-cover-' + profileUser.id + '/1200/300')})`;
+      var defaultCovers = [
+        'img/user bg/Blue sky clouds.jpg',
+        'img/user bg/City night bokeh.jpg',
+        'img/user bg/Green leaves aesthetic.jpg',
+        'img/user bg/Sunset horizon.jpg'
+      ];
+      // 简单的 hash 算法，确保同一个用户ID对应同一张背景图
+      var hash = 0;
+      var str = profileUser.id || '';
+      for (var i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      var index = Math.abs(hash) % defaultCovers.length;
+      var defaultCover = defaultCovers[index];
+
+      coverEl.style.backgroundImage = `url('${(profileUser.cover || defaultCover).replace(/'/g, "\\'")}')`;
     }
 
     // 头像
     var avatarEl = qs('#profileAvatar');
     if (avatarEl) {
-      avatarEl.src = profileUser.avatar || 'https://api.dicebear.com/7.x/initials/svg?seed=CL';
+      avatarEl.src = profileUser.avatar || 'img/user picture/adventurer-1766570006973.jpg';
     }
 
     // 昵称与签名
@@ -141,7 +156,7 @@
       if (isSelf) {
         actionsHtml = `
           <button type="button" id="editProfileBtn" class="btn btn-secondary btn--sm">编辑资料</button>
-          <button type="button" id="logoutBtn" class="btn btn-secondary btn--sm">退出登录</button>
+          <button type="button" id="logoutBtnProfile" class="btn btn-secondary btn--sm">退出登录</button>
         `;
       } else {
         // 判断当前用户是否已关注此用户
@@ -159,7 +174,7 @@
       // 绑定事件
       if (isSelf) {
         qs('#editProfileBtn')?.addEventListener('click', () => openModal('editProfileModal'));
-        qs('#logoutBtn')?.addEventListener('click', () => {
+        qs('#logoutBtnProfile')?.addEventListener('click', () => {
           Auth.logout();
           window.location.href = 'index.html';
         });

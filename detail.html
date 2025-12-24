@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/variables.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components-extra.css" />
 </head>
 <body data-page="detail">
   <!-- 视频背景 -->
@@ -43,6 +44,14 @@
         </nav>
       </div>
       <div class="app-dock__bottom">
+        <button type="button" class="app-dock__item app-dock__item--toggle js-open-post-modal" title="发布动态">
+          <span class="app-dock__icon">➕</span>
+          <span class="app-dock__label">发布</span>
+        </button>
+        <button type="button" class="app-dock__item app-dock__item--toggle js-theme-toggle" id="themeToggleBtnDock" title="切换夜间模式">
+          <span class="app-dock__icon theme-toggle-icon">🌙</span>
+          <span class="app-dock__label">夜间模式</span>
+        </button>
         <button type="button" class="app-dock__item app-dock__item--toggle" id="glassEffectToggleBtnDock" title="切换毛玻璃效果">
           <span class="app-dock__icon">✨</span>
           <span class="app-dock__label">毛玻璃</span>
@@ -50,10 +59,6 @@
         <button type="button" class="app-dock__item app-dock__item--toggle" id="opacityToggleBtnDock" title="切换卡片透明度">
           <span class="app-dock__icon">👁️</span>
           <span class="app-dock__label">透明度</span>
-        </button>
-        <button type="button" class="app-dock__item app-dock__item--toggle js-theme-toggle" id="themeToggleBtnDock" title="切换夜间模式">
-          <span class="app-dock__icon theme-toggle-icon">🌙</span>
-          <span class="app-dock__label">夜间模式</span>
         </button>
         <a href="profile.html" class="app-dock__item app-dock__item--profile" data-auth-visible="user" title="个人中心">
           <span class="app-dock__icon">🧑</span>
@@ -75,19 +80,6 @@
       </form>
     </div>
     <div class="navbar__right">
-      <a href="groups.html" class="btn-icon" data-auth-visible="user" aria-label="群组" title="群组">👥</a>
-      <a href="checkin.html" class="btn-icon" data-auth-visible="user" aria-label="打卡签到" title="打卡签到">📅</a>
-      <a href="review.html" class="btn-icon" data-auth-visible="user" aria-label="年度回顾" title="年度回顾">📊</a>
-      <button type="button" class="btn-icon" id="openPostModalBtn" aria-label="发布动态">+</button>
-      <button type="button" class="btn-icon" id="glassEffectToggleBtn" aria-label="切换毛玻璃效果" title="切换毛玻璃效果">
-        <span class="glass-effect-icon" aria-hidden="true">✨</span>
-      </button>
-      <button type="button" class="btn-icon" id="opacityToggleBtn" aria-label="切换卡片透明度" title="切换卡片透明度">
-        <span class="opacity-toggle-icon" aria-hidden="true">👁️</span>
-      </button>
-      <button type="button" class="btn-icon js-theme-toggle" id="themeToggleBtn" aria-label="切换夜间模式">
-        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
-      </button>
       <div class="navbar__user">
         <a href="profile.html" class="navbar__user-avatar" id="userProfileLink" title="个人中心">
           <img src="" alt="用户头像" id="navbarAvatarImg" />
@@ -140,7 +132,9 @@
         <form id="commentForm" class="detail-comment-form">
           <div class="input-pill-wrapper">
              <input type="text" id="commentContentInput" placeholder="说点什么..." required autocomplete="off" />
-             <button type="button" id="emojiToggleBtn" class="btn-icon-sm">😊</button>
+             <button type="button" id="emojiToggleBtn" class="btn-icon-sm" title="表情">😊</button>
+             <button type="button" id="imageUploadBtn" class="btn-icon-sm" title="添加图片">📷</button>
+             <input type="file" id="commentImageInput" accept="image/*" hidden />
              <button type="submit" class="btn-text-primary">发布</button>
           </div>
           <div id="emojiPicker" class="emoji-picker-float" hidden></div>
@@ -149,6 +143,69 @@
 
     </section>
   </main>
+
+  <!-- 发布动态模态框 (用于编辑) -->
+  <div class="modal" id="postModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
+    <div class="modal__overlay" data-close-modal="postModal"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="postModalTitle">发布新动态</h2>
+        <button type="button" class="modal__close" data-close-modal="postModal" aria-label="关闭">×</button>
+      </header>
+      <form id="postForm" class="modal__body">
+        <label>
+          内容
+          <textarea id="postContentInput" rows="4" placeholder="分享今天在校园里的故事..." required></textarea>
+        </label>
+        <label>
+          图片 URL（每行一张，可选）
+          <textarea id="postImagesInput" rows="3" placeholder="粘贴图片链接，模拟上传"></textarea>
+        </label>
+        <label>
+          可见范围
+          <select id="postVisibilitySelect">
+            <option value="public">公开</option>
+            <option value="friends">仅好友可见</option>
+          </select>
+        </label>
+        <label>
+          发布到群组（可选）
+          <select id="postGroupSelect">
+            <option value="">不发布到群组</option>
+            <!-- JS 渲染用户群组列表 -->
+          </select>
+        </label>
+        <footer class="modal__footer">
+          <button type="button" class="btn-secondary" data-close-modal="postModal">取消</button>
+          <button type="submit" class="btn-primary">发布</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- 转发动态模态框 -->
+  <div class="modal" id="repostModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="repostModalTitle">
+    <div class="modal__overlay" data-close-modal="repostModal"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="repostModalTitle">转发动态</h2>
+        <button type="button" class="modal__close" data-close-modal="repostModal" aria-label="关闭">×</button>
+      </header>
+      <form id="repostForm" class="modal__body">
+        <div id="repostOriginalContent" class="repost-original">
+          <!-- JS 渲染原动态内容 -->
+        </div>
+        <label>
+          转发理由（可选）
+          <textarea id="repostContentInput" rows="3" placeholder="说说你的想法..."></textarea>
+        </label>
+        <footer class="modal__footer">
+          <button type="button" class="btn-secondary" data-close-modal="repostModal">取消</button>
+          <button type="submit" class="btn-primary">转发</button>
+        </footer>
+      </form>
+    </div>
+  </div>
 
   <script src="js/data-store.js"></script>
   <script src="js/auth.js"></script>

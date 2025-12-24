@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/variables.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components-extra.css" />
 </head>
 <body data-page="groups">
   <!-- 视频背景 -->
@@ -43,6 +44,14 @@
         </nav>
       </div>
       <div class="app-dock__bottom">
+        <button type="button" class="app-dock__item app-dock__item--toggle js-open-post-modal" title="发布动态">
+          <span class="app-dock__icon">➕</span>
+          <span class="app-dock__label">发布</span>
+        </button>
+        <button type="button" class="app-dock__item app-dock__item--toggle js-theme-toggle" id="themeToggleBtnDock" title="切换夜间模式">
+          <span class="app-dock__icon theme-toggle-icon">🌙</span>
+          <span class="app-dock__label">夜间模式</span>
+        </button>
         <button type="button" class="app-dock__item app-dock__item--toggle" id="glassEffectToggleBtnDock" title="切换毛玻璃效果">
           <span class="app-dock__icon">✨</span>
           <span class="app-dock__label">毛玻璃</span>
@@ -50,10 +59,6 @@
         <button type="button" class="app-dock__item app-dock__item--toggle" id="opacityToggleBtnDock" title="切换卡片透明度">
           <span class="app-dock__icon">👁️</span>
           <span class="app-dock__label">透明度</span>
-        </button>
-        <button type="button" class="app-dock__item app-dock__item--toggle js-theme-toggle" id="themeToggleBtnDock" title="切换夜间模式">
-          <span class="app-dock__icon theme-toggle-icon">🌙</span>
-          <span class="app-dock__label">夜间模式</span>
         </button>
         <a href="profile.html" class="app-dock__item app-dock__item--profile" data-auth-visible="user" title="个人中心">
           <span class="app-dock__icon">🧑</span>
@@ -75,19 +80,6 @@
       </form>
     </div>
     <div class="navbar__right">
-      <a href="groups.html" class="btn-icon" data-auth-visible="user" aria-label="群组" title="群组">👥</a>
-      <a href="checkin.html" class="btn-icon" data-auth-visible="user" aria-label="打卡签到" title="打卡签到">📅</a>
-      <a href="review.html" class="btn-icon" data-auth-visible="user" aria-label="年度回顾" title="年度回顾">📊</a>
-      <button type="button" class="btn-icon" id="openPostModalBtn" aria-label="发布动态">+</button>
-      <button type="button" class="btn-icon" id="glassEffectToggleBtn" aria-label="切换毛玻璃效果" title="切换毛玻璃效果">
-        <span class="glass-effect-icon" aria-hidden="true">✨</span>
-      </button>
-      <button type="button" class="btn-icon" id="opacityToggleBtn" aria-label="切换卡片透明度" title="切换卡片透明度">
-        <span class="opacity-toggle-icon" aria-hidden="true">👁️</span>
-      </button>
-      <button type="button" class="btn-icon js-theme-toggle" id="themeToggleBtn" aria-label="切换夜间模式">
-        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
-      </button>
       <div class="navbar__user">
         <a href="profile.html" class="navbar__user-avatar" id="userProfileLink" title="个人中心">
           <img src="" alt="用户头像" id="navbarAvatarImg" />

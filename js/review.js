@@ -88,19 +88,76 @@
   }
 
   function renderYearSelect(currentYear) {
-    var selectEl = qs('#yearSelect');
-    if (!selectEl) return;
+    var container = qs('#yearSelector');
+    var trigger = qs('#yearSelectorTrigger');
+    var valueEl = qs('#yearSelectorValue');
+    var menu = qs('#yearSelectorMenu');
     
+    if (!container || !trigger || !menu) return;
+
     var current = new Date().getFullYear();
     var html = '';
-    for (var year = current; year >= current - 2; year--) {
-      html += '<option value="' + year + '"' + (year === currentYear ? ' selected' : '') + '>' + year + '年</option>';
-    }
-    selectEl.innerHTML = html;
     
-    selectEl.addEventListener('change', function () {
-      var year = parseInt(selectEl.value, 10);
-      renderReview(year);
+    for (var year = current; year >= current - 2; year--) {
+      var isSelected = year === currentYear;
+      var className = isSelected ? 'year-selector__option is-selected' : 'year-selector__option';
+      html += '<li class="' + className + '" data-year="' + year + '" role="option" aria-selected="' + isSelected + '">' + year + '年</li>';
+    }
+    menu.innerHTML = html;
+    valueEl.textContent = currentYear + '年';
+
+    // 交互逻辑
+    function toggleMenu() {
+      var isOpen = container.classList.contains('is-open');
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    function openMenu() {
+      container.classList.add('is-open');
+      menu.removeAttribute('hidden');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMenu() {
+      container.classList.remove('is-open');
+      menu.setAttribute('hidden', '');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    menu.addEventListener('click', function(e) {
+      if (e.target.classList.contains('year-selector__option')) {
+        var year = parseInt(e.target.getAttribute('data-year'), 10);
+        
+        // Update UI
+        valueEl.textContent = year + '年';
+        menu.querySelectorAll('.year-selector__option').forEach(function(el) {
+          el.classList.remove('is-selected');
+          el.setAttribute('aria-selected', 'false');
+        });
+        e.target.classList.add('is-selected');
+        e.target.setAttribute('aria-selected', 'true');
+        
+        closeMenu();
+        
+        // Render Review
+        renderReview(year);
+      }
+    });
+
+    // Click outside to close
+    document.addEventListener('click', function(e) {
+      if (!container.contains(e.target)) {
+        closeMenu();
+      }
     });
   }
 

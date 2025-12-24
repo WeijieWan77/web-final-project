@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/variables.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components-extra.css" />
 </head>
 <body data-page="index">
   <!-- 视频背景 -->
@@ -50,6 +51,10 @@
         </nav>
       </div>
       <div class="app-dock__bottom">
+        <button type="button" class="app-dock__item app-dock__item--toggle js-open-post-modal" title="发布动态">
+          <span class="app-dock__icon">➕</span>
+          <span class="app-dock__label">发布</span>
+        </button>
         <button type="button" class="app-dock__item app-dock__item--toggle js-theme-toggle" id="themeToggleBtnDock" title="切换夜间模式">
           <span class="app-dock__icon theme-toggle-icon">🌙</span>
           <span class="app-dock__label">夜间模式</span>
@@ -92,27 +97,10 @@
       <button type="button" class="btn-icon" id="opacityToggleBtn" aria-label="切换卡片透明度" title="切换卡片透明度">
         <span class="opacity-toggle-icon" aria-hidden="true">👁️</span>
       </button>
-      <button type="button" class="btn-icon js-theme-toggle" id="themeToggleBtn" aria-label="切换夜间模式">
-        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
-      </button>
       <div class="navbar__user">
         <a href="profile.html" class="navbar__user-avatar" id="userProfileLink" title="个人中心">
           <img src="" alt="用户头像" id="navbarAvatarImg" />
         </a>
-        <button type="button" class="navbar__user-trigger" id="userMenuToggle" aria-label="用户菜单" aria-haspopup="true" aria-expanded="false">
-          ▼
-        </button>
-        <div class="navbar__user-menu" id="userDropdownMenu" aria-label="用户菜单">
-          <div class="user-menu-header" data-auth-visible="user">
-            <div class="user-menu-name" id="menuUserName">同学</div>
-            <div class="user-menu-id" id="menuUserId">ID: --</div>
-          </div>
-          <a href="login.html" data-auth-visible="guest">登录</a>
-          <a href="register.html" data-auth-visible="guest">注册</a>
-          <a href="profile.html" data-auth-visible="user">个人中心</a>
-          <button type="button" id="logoutBtn" data-auth-visible="user">退出登录</button>
-          <a href="admin.html" data-auth-visible="admin">管理员后台</a>
-        </div>
       </div>
     </div>
   </header>
@@ -131,13 +119,13 @@
         </div>
       </div>
 
-      <div class="hero__card hero__card--sm" data-hero-card data-offset-x="-140" data-offset-y="-80">
+      <div class="hero__card hero__card--sm hero__card--dance" data-hero-card data-offset-x="-140" data-offset-y="-80">
         <span class="hero__pill">社团</span>
         <h3>街舞社招新</h3>
         <p>周五晚 19:00 / 体育馆</p>
       </div>
 
-      <div class="hero__card hero__card--md" data-hero-card data-offset-x="120" data-offset-y="-90">
+      <div class="hero__card hero__card--md hero__card--food" data-hero-card data-offset-x="120" data-offset-y="-90">
         <span class="hero__pill">美食</span>
         <h3>夜宵地图</h3>
         <p>宿舍楼下的深夜食堂，打卡 24 家。</p>
@@ -153,13 +141,13 @@
         <div class="hero__overlay">图书馆自习</div>
       </div>
 
-      <div class="hero__card hero__card--md" data-hero-card data-offset-x="-160" data-offset-y="40">
+      <div class="hero__card hero__card--md hero__card--study" data-hero-card data-offset-x="-160" data-offset-y="40">
         <span class="hero__pill">学习</span>
         <h3>期末复习圈</h3>
         <p>共享笔记 / 互助答疑 / 线上打卡</p>
       </div>
 
-      <div class="hero__card hero__card--sm" data-hero-card data-offset-x="160" data-offset-y="-40">
+      <div class="hero__card hero__card--sm hero__card--movie" data-hero-card data-offset-x="160" data-offset-y="-40">
         <span class="hero__pill">活动</span>
         <h3>露天电影夜</h3>
         <p>周末草坪，一起看老电影</p>

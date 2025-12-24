@@ -42,7 +42,13 @@
   function renderDetailMedia(post) {
     const images = Array.isArray(post.images) ? post.images : [];
     if (images.length === 0) {
-      return '<div class="detail-media-empty">无图片内容</div>';
+      // 优化无图片时的显示效果
+      return '<div class="detail-media-empty">' +
+             '<div class="detail-media-empty__content">' +
+             '<div class="detail-media-empty__icon">📝</div>' +
+             '<div class="detail-media-empty__text">纯文动态</div>' +
+             '</div>' +
+             '</div>';
     }
 
     // 1. 构建轮播图容器
@@ -74,7 +80,15 @@
     return html;
   }
 
-  function renderDetailHeader(author) {
+  function renderDetailHeader(post, author, currentUser) {
+     var isOwner = currentUser && currentUser.id === post.authorId;
+     var actionsHtml = '';
+     if (isOwner) {
+         actionsHtml += '<button class="btn-icon-edit" data-action="edit-post" title="编辑" style="margin-right: 8px;">✏️</button>';
+         actionsHtml += '<button class="btn-icon-delete" data-action="delete-post" title="删除" style="margin-right: 12px;">🗑️</button>';
+     }
+     actionsHtml += '<button class="btn-follow">关注</button>';
+
      return '<div class="detail-user-card">' +
             '<a href="profile.html?userId=' + escapeHTML(author.id) + '">' +
             '<img src="' + escapeHTML(author.avatar) + '" class="detail-user-avatar">' +
@@ -84,7 +98,9 @@
             '<span class="detail-location">深圳大学</span>' +
             '</div>' +
             '</div>' +
-            '<button class="btn-follow">关注</button>';
+            '<div class="detail-header-actions" style="display:flex;align-items:center;">' +
+            actionsHtml +
+            '</div>';
   }
 
   function renderDetailContent(post) {
@@ -156,7 +172,7 @@
 
   // !!! 修改后的 renderPostCard：添加了点击跳转逻辑 !!!
   function renderPostCard(post, author, currentUser) {
-    author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: '' };
+    author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: 'img/user picture/adventurer-1766570006973.jpg' };
     var isLiked = false; 
     var isFavorited = currentUser && DataStore.isFavorite(currentUser.id, post.id);
     var repostCount = DataStore.getRepostCount(post.id);
@@ -176,6 +192,16 @@
     // 生成详情页链接
     var detailUrl = 'detail.html?id=' + escapeHTML(post.id);
 
+    // 头部
+    var isOwner = currentUser && currentUser.id === post.authorId;
+    var ownerActions = '';
+    if (isOwner) {
+      ownerActions = '<div class="post-card__owner-actions">' +
+                     '<button type="button" class="btn-icon-edit" data-action="edit-post" title="编辑">✏️</button>' +
+                     '<button type="button" class="btn-icon-delete" data-action="delete-post" title="删除">🗑️</button>' +
+                     '</div>';
+    }
+
     return (
       '<article class="card post-card' + (post.isRepost ? ' post-card--repost' : '') + '" data-post-id="' + escapeHTML(post.id) + '">' +
       
@@ -188,6 +214,7 @@
       '<div class="post-card__author">' + escapeHTML(author.nickname || '未知用户') + '</div>' +
       '<div class="post-card__time">' + formatTimeAgo(post.timestamp) + '</div>' +
       '</div>' +
+      ownerActions +
       '</header>' +
       
       repostInfo +
@@ -256,7 +283,14 @@
   }
 
   function renderCommentItem(comment, user) {
-    user = user || DataStore.getUserById(comment.userId) || { nickname: '匿名', avatar: '' };
+    user = user || DataStore.getUserById(comment.userId) || { nickname: '匿名', avatar: 'img/user picture/adventurer-1766570006973.jpg' };
+    
+    // 处理内容中的图片标记 [图片:url]
+    var contentHtml = escapeHTML(comment.content);
+    contentHtml = contentHtml.replace(/\[图片:(.*?)\]/g, function(match, url) {
+        return '<br><img src="' + url + '" class="comment-embedded-img" style="max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 8px; display: block; cursor: pointer;" onclick="window.open(this.src)" /><br>';
+    });
+
     return (
       '<li class="comment-item" data-comment-id="' +
       escapeHTML(comment.id) +
@@ -269,7 +303,7 @@
       '<span>' + escapeHTML(user.nickname || '匿名') + '</span>' +
       '<span>' + formatTimeAgo(comment.timestamp) + '</span>' +
       '</div>' +
-      '<div class="comment-item__content">' + escapeHTML(comment.content) + '</div>' +
+      '<div class="comment-item__content">' + contentHtml + '</div>' +
       '</div>' +
       '</li>'
     );
@@ -369,14 +403,14 @@
 
   function renderPostDetail(post, author) {
     // 兼容旧逻辑，防止报错
-    author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: '' };
+    author = author || DataStore.getUserById(post.authorId) || { nickname: '未知用户', avatar: 'img/user picture/adventurer-1766570006973.jpg' };
     
     var repostInfo = '';
     var originalContent = '';
     if (post.isRepost && post.repostedFrom) {
       var originalPost = DataStore.getPostById(post.repostedFrom);
       if (originalPost) {
-        var originalAuthor = DataStore.getUserById(originalPost.authorId) || { nickname: '未知用户', avatar: '' };
+        var originalAuthor = DataStore.getUserById(originalPost.authorId) || { nickname: '未知用户', avatar: 'img/user picture/adventurer-1766570006973.jpg' };
         repostInfo = '<div class="post-card__repost-info">' +
                      '<span class="post-card__repost-label">🔁 转发自</span>' +
                      '<a href="profile.html?userId=' + escapeHTML(originalAuthor.id || '') + '" class="post-card__repost-author">' + 

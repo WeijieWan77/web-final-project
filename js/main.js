@@ -17,6 +17,17 @@
     return body ? body.getAttribute('data-page') : '';
   }
 
+  function getQueryParam(name) {
+    var params = window.location.search.substring(1).split('&');
+    for (var i = 0; i < params.length; i++) {
+      var pair = params[i].split('=');
+      if (decodeURIComponent(pair[0]) === name) {
+        return decodeURIComponent(pair[1] || '');
+      }
+    }
+    return '';
+  }
+
   // --- 主题切换 ---
 
   function initTheme() {
@@ -124,7 +135,7 @@
         iconNavbar.textContent = isTransparent ? '👁️' : '🔲';
       }
       if (iconDock) {
-        iconDock.textContent = isTransparent ? '👁️' : '🔲';
+        iconDock.textContent = isTransparent ? '👁️' : '💧';
       }
     }
     
@@ -241,10 +252,30 @@
     var currentUser = Auth.getCurrentUser();
     var avatarImg = qs('#navbarAvatarImg');
     if (avatarImg) {
-      if (currentUser && currentUser.avatar) {
+      // 本地头像列表
+      var localAvatars = [
+        'img/user picture/adventurer-1766570006973.jpg',
+        'img/user picture/adventurer-1766570011526.jpg',
+        'img/user picture/adventurer-1766570014487.jpg',
+        'img/user picture/adventurer-1766570016794.jpg',
+        'img/user picture/adventurer-1766570021937.jpg',
+        'img/user picture/adventurer-1766570024612.jpg',
+        'img/user picture/adventurer-1766570026574.jpg',
+        'img/user picture/adventurer-1766570028745.jpg'
+      ];
+      
+      // 检查当前用户是否有自定义头像（排除默认的 dicebear 头像）
+      var shouldUseLocal = true;
+      if (currentUser && currentUser.avatar && currentUser.avatar.indexOf('dicebear') === -1) {
+        shouldUseLocal = false;
+      }
+
+      if (!shouldUseLocal) {
         avatarImg.src = currentUser.avatar;
       } else {
-        avatarImg.src = 'https://api.dicebear.com/7.x/initials/svg?seed=CL';
+        // 随机选择一个
+        var randomAvatar = localAvatars[Math.floor(Math.random() * localAvatars.length)];
+        avatarImg.src = randomAvatar;
       }
     }
 
@@ -622,6 +653,40 @@
           openModal('repostModal');
         } else if (action === 'comment' || action === 'open-detail') {
           window.location.href = 'detail.html?id=' + encodeURIComponent(postId);
+        } else if (action === 'delete-post') {
+          // 阻止事件冒泡，防止触发卡片跳转
+          e.stopPropagation();
+          if (window.confirm('确定要删除这条动态吗？')) {
+            DataStore.deletePost(postId);
+            // 重新渲染当前 Feed
+            if (typeof renderFeed === 'function') {
+                renderFeed();
+            } else {
+                // 如果是在详情页，则跳转回首页
+                window.location.href = 'index.html';
+            }
+          }
+        } else if (action === 'edit-post') {
+           // 阻止事件冒泡，防止触发卡片跳转
+           e.stopPropagation();
+           var post = DataStore.getPostById(postId);
+           if (!post) return;
+           
+           qs('#postContentInput').value = post.content || '';
+           qs('#postImagesInput').value = (post.images || []).join('\n');
+           if(qs('#postVisibilitySelect')) qs('#postVisibilitySelect').value = post.visibility || 'public';
+           if(qs('#postGroupSelect')) qs('#postGroupSelect').value = post.groupId || '';
+           
+           var form = qs('#postForm');
+           form.setAttribute('data-editing-id', postId);
+           
+           var title = qs('#postModalTitle');
+           if(title) title.textContent = '编辑动态';
+           
+           var submitBtn = qs('#postForm button[type="submit"]');
+           if(submitBtn) submitBtn.textContent = '更新';
+           
+           openModal('postModal');
         }
       });
     }
@@ -634,6 +699,16 @@
           window.location.href = 'login.html';
           return;
         }
+        
+        // 重置表单状态为“发布”
+        var form = qs('#postForm');
+        form.removeAttribute('data-editing-id');
+        form.reset();
+        var title = qs('#postModalTitle');
+        if(title) title.textContent = '发布新动态';
+        var submitBtn = qs('#postForm button[type="submit"]');
+        if(submitBtn) submitBtn.textContent = '发布';
+
         // 加载用户群组列表
         var user = Auth.getCurrentUser();
         var groups = DataStore.getUserGroups(user.id);
@@ -647,6 +722,19 @@
         }
         openModal('postModal');
       });
+      
+      // 检查 URL 参数 ?action=post，自动打开
+      if (getQueryParam('action') === 'post') {
+        // 稍微延迟，确保 Auth 状态就绪（虽然这里 Auth 是同步的，但稳妥起见）
+        setTimeout(function() {
+           openPostModalBtn.click();
+           // 清除 URL 参数，避免刷新再次触发（可选）
+           if (window.history && window.history.replaceState) {
+             var newUrl = window.location.pathname + window.location.search.replace(/action=post&?/, '').replace(/\?$/, '');
+             window.history.replaceState(null, '', newUrl);
+           }
+        }, 300);
+      }
     }
 
     var postForm = qs('#postForm');
@@ -684,6 +772,18 @@
         if (groupId) {
           postData.groupId = groupId;
         }
+        
+        var editingId = postForm.getAttribute('data-editing-id');
+        if (editingId) {
+            // 更新逻辑
+            DataStore.updatePost(editingId, postData);
+            window.alert('动态已更新');
+            closeModal('postModal');
+            // 刷新页面以显示更改（简单粗暴但有效）
+            window.location.reload();
+            return;
+        }
+
         var newPost = DataStore.addPost(postData);
         // 更新用户活跃时间
         DataStore.updateUserLastActiveTime(user.id);
@@ -721,6 +821,32 @@
         }
       });
     }
+  }
+
+  // --- 全局发布按钮逻辑 ---
+  function initGlobalPostButton() {
+    var btns = qsa('.js-open-post-modal');
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+         e.preventDefault();
+         
+         // 检查是否登录
+         if (!Auth.isLoggedIn()) {
+           window.alert('请先登录后再发布动态');
+           window.location.href = 'login.html';
+           return;
+         }
+
+         if (getPageKey() === 'index') {
+            // 如果在首页，触发主按钮点击（复用原有逻辑）
+            var mainBtn = qs('#openPostModalBtn');
+            if (mainBtn) mainBtn.click();
+         } else {
+            // 其它页面跳转到首页并自动打开
+            window.location.href = 'index.html?action=post';
+         }
+      });
+    });
   }
 
   // --- 登录页 login.html ---
@@ -939,17 +1065,6 @@
 
   // --- 详情页 detail.html ---
 
-  function getQueryParam(name) {
-    var params = window.location.search.substring(1).split('&');
-    for (var i = 0; i < params.length; i++) {
-      var pair = params[i].split('=');
-      if (decodeURIComponent(pair[0]) === name) {
-        return decodeURIComponent(pair[1] || '');
-      }
-    }
-    return '';
-  }
-
   function initDetailPage() {
     var pageKey = getPageKey();
     if (pageKey !== 'detail') return;
@@ -993,9 +1108,12 @@
     // 对应 detail.html 中的四个 ID 容器
     if (Render.setHTMLById) {
         Render.setHTMLById('detailMedia', Render.renderDetailMedia(post));
-        Render.setHTMLById('detailHeader', Render.renderDetailHeader(author, currentUser));
+        Render.setHTMLById('detailHeader', Render.renderDetailHeader(post, author, currentUser));
         Render.setHTMLById('detailContent', Render.renderDetailContent(post));
         Render.setHTMLById('detailActions', Render.renderDetailActions(post, currentUser));
+        
+        // 绑定头部删除和编辑按钮事件 - 已合并到下方的 detail-right 事件委托中处理
+        
     }
     // =========== [新增代码开始：鼠标拖拽与按钮控制] ===========
     const carousel = qs('#detailMediaCarousel');
@@ -1065,15 +1183,50 @@
     // =========== [新增代码结束] ===========
     
 
-    // 3. 绑定底部操作栏事件 (使用事件委托)
-    // 因为 Like/Favorite/Repost 按钮是动态渲染的，没有固定ID，所以监听父容器 #detailActions
-    var actionsContainer = qs('#detailActions');
-    if (actionsContainer) {
-      actionsContainer.addEventListener('click', function (e) {
-        var btn = e.target.closest('[data-action]');
+        // 3. 绑定底部操作栏事件 (使用事件委托)
+    // 同时也处理头部(detailHeader)的编辑/删除按钮，统一在 detail-right 上委托
+    var detailRight = qs('.detail-right');
+    if (detailRight) {
+      detailRight.addEventListener('click', function (e) {
+        var target = e.target;
+        // 兼容性处理：如果点击的是文本节点，获取其父元素
+        if (target.nodeType === 3) {
+            target = target.parentNode;
+        }
+        
+        var btn = target.closest('[data-action]');
         if (!btn) return;
         var action = btn.getAttribute('data-action');
 
+        // --- 头部编辑/删除按钮 ---
+        if (action === 'delete-post') {
+            if (window.confirm('确定要删除这条动态吗？')) {
+                DataStore.deletePost(post.id);
+                window.location.href = 'index.html';
+            }
+            return;
+        }
+        
+        if (action === 'edit-post') {
+           qs('#postContentInput').value = post.content || '';
+           qs('#postImagesInput').value = (post.images || []).join('\n');
+           if(qs('#postVisibilitySelect')) qs('#postVisibilitySelect').value = post.visibility || 'public';
+           if(qs('#postGroupSelect')) qs('#postGroupSelect').value = post.groupId || '';
+           
+           var form = qs('#postForm');
+           form.setAttribute('data-editing-id', post.id);
+           
+           var title = qs('#postModalTitle');
+           if(title) title.textContent = '编辑动态';
+           
+           var submitBtn = qs('#postForm button[type="submit"]');
+           if(submitBtn) submitBtn.textContent = '更新';
+           
+           openModal('postModal');
+           return;
+        }
+
+        // --- 底部操作栏按钮 ---
         if (action === 'like') {
            if (!Auth.isLoggedIn()) {
              window.alert('请先登录');
@@ -1199,7 +1352,36 @@
        });
     }
 
-    // 6. 模态框内的转发表单提交逻辑 (复用)
+    // 6. 评论区图片上传 (File Input)
+    var imageUploadBtn = qs('#imageUploadBtn');
+    var imageInput = qs('#commentImageInput');
+    
+    if (imageUploadBtn && imageInput) {
+        imageUploadBtn.addEventListener('click', function() {
+            imageInput.click(); // 触发文件选择
+        });
+
+        imageInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    var dataUrl = evt.target.result;
+                    var input = qs('#commentContentInput');
+                    if (input) {
+                        // 插入图片标记
+                        input.value += " [图片:" + dataUrl + "] ";
+                        input.focus();
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+            // 清空 value 以便下次还能选同一张图
+            imageInput.value = '';
+        });
+    }
+
+    // 7. 模态框内的转发表单提交逻辑 (复用)
     var repostForm = qs('#repostForm');
     if (repostForm) {
       // 移除可能重复绑定的监听器 (虽然 initDetailPage 只跑一次，但为了保险)
@@ -1235,6 +1417,7 @@
     initModalTriggers();
 
     initHomePage();
+    initGlobalPostButton();
     initLoginPage();
     initRegisterPage();
     initDetailPage();
