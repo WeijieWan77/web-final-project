@@ -145,3 +145,128 @@ web-final-project/
 1. 直接使用浏览器打开 `index.html` 即可运行。
 2. 推荐使用 Chrome、Firefox、Edge 等现代浏览器。
 3. 数据存储在浏览器的 LocalStorage 中，清除缓存会重置所有数据。
+
+---
+
+## 项目技术亮点
+
+### 亮点一：Bento Grid 3D 滚动动效系统
+
+首页 Hero 区域采用 **Bento Grid（网格布局）** 设计，通过 CSS Grid 和 JavaScript 滚动事件实现了流畅的 3D 动效体验。
+
+**技术实现细节：**
+
+1. **CSS Grid 布局**：使用 `grid-template-columns: repeat(6, 1fr)` 创建 6 列网格，每个卡片通过 `grid-column` 和 `grid-row` 实现不规则排列，形成错落有致的 Bento 风格。
+
+2. **3D 变换基础**：为网格容器设置 `perspective: 1400px` 和 `transform: rotate3d(1, -0.5, 0, 8deg)`，让整个网格呈现轻微的 3D 倾斜效果。
+
+3. **滚动驱动动画**：通过 `window.addEventListener('scroll')` 监听滚动事件，使用 `requestAnimationFrame` 进行性能优化。根据 `window.scrollY` 计算滚动进度，动态更新每个卡片的：
+   - **位移**：通过 `data-offset-x` 和 `data-offset-y` 属性为每个卡片预设偏移方向，使用 `translate3d()` 实现扩散式位移
+   - **缩放**：从 1.0 逐渐缩小至 0.94，增强层次感
+   - **透明度**：从 1.0 淡出至 0，实现自然消失效果
+   - **整体倾斜**：网格倾斜角度从 8deg 减小至 3deg，逐渐回归平面
+
+4. **性能优化**：使用 `{ passive: true }` 提升滚动性能，通过 `ticking` 标志位避免重复计算，确保动画流畅。
+
+**视觉效果**：当用户向下滚动时，Bento Grid 卡片会呈现"爆炸式"扩散效果，同时逐渐淡出，创造了极具视觉冲击力的首屏体验，体现了现代 Web 设计中的"滚动叙事"理念。
+
+---
+
+### 亮点二：视频背景日夜切换系统
+
+项目采用**双视频背景**技术，实现了根据主题模式自动切换的沉浸式视觉体验。
+
+**技术实现细节：**
+
+1. **HTML 结构**：在 `<body>` 中同时放置两个 `<video>` 元素，分别标记为 `bg-video--day` 和 `bg-video--night`，设置为 `autoplay muted loop playsinline`，确保自动播放且无声音。
+
+2. **CSS 层级控制**：
+   - 视频设置为 `position: fixed`，覆盖整个视口（`z-index: -1`）
+   - 使用 `object-fit: cover` 保持视频填满屏幕
+   - 通过 `opacity` 属性控制显示/隐藏
+
+3. **主题切换联动**：
+   - 日间模式：`.bg-video--day { opacity: 1 }`，`.bg-video--night { opacity: 0 }`
+   - 夜间模式：通过 `body[data-theme='dark']` 选择器切换：日间视频 `opacity: 0`，夜间视频 `opacity: 1`
+   - 使用 `transition: opacity 0.8s ease` 实现平滑过渡
+
+4. **视觉增强**：
+   - 在视频上方叠加 `body::before` 伪元素，使用 `radial-gradient` 创建极光渐变效果，配合 `filter: blur(60px)` 实现柔和光晕
+   - 通过 `@keyframes aurora-move` 让极光背景产生缓慢移动动画
+   - 在首页使用 `body::after` 叠加网格纹理，增强层次感
+
+**交互体验**：当用户点击主题切换按钮时，JavaScript 会切换 `body` 的 `data-theme` 属性，CSS 自动响应并平滑过渡视频显示，整个切换过程无缝衔接，创造出类似"日出日落"的沉浸式视觉体验。
+
+---
+
+### 亮点三：localStorage 数据持久化架构
+
+项目完全基于浏览器 **localStorage API** 实现了完整的数据持久化系统，无需后端即可保存所有用户数据和应用状态。
+
+**技术实现细节：**
+
+1. **统一存储管理**：
+   - 创建 `STORAGE_KEYS` 常量对象，统一管理所有存储键名（如 `campuslife_users`、`campuslife_posts_v2`、`campuslife_theme` 等）
+   - 封装 `getItemJSON()` 和 `setItemJSON()` 方法，自动处理 `JSON.stringify/parse` 转换和异常捕获
+
+2. **数据模型设计**：
+   - **用户数据**：存储用户列表、当前登录用户 ID、记住的学号
+   - **内容数据**：动态列表、评论列表、收藏列表、转发记录
+   - **应用状态**：主题偏好、毛玻璃效果开关、卡片透明度设置
+   - **扩展功能**：群组数据、打卡记录、用户访问统计
+
+3. **数据操作 API**：
+   - 提供完整的 CRUD 操作：`getUsers()`、`addUser()`、`updateUser()`、`deletePost()` 等
+   - 实现业务逻辑封装：`toggleLike()`、`followUser()`、`addComment()` 等方法自动处理数据关联和状态更新
+   - 使用 `generateId()` 生成唯一 ID（基于时间戳和随机数）
+
+4. **数据迁移与兼容**：
+   - 实现数据版本迁移逻辑，自动将旧格式数据升级到新格式
+   - 通过 `initMockDataIfNeeded()` 检测首次访问，自动初始化示例数据
+
+**架构优势**：
+- **模块化设计**：所有数据操作集中在 `data-store.js`，其他模块通过统一接口访问，便于维护
+- **类型安全**：通过 `safeParse()` 确保数据解析失败时返回默认值，避免程序崩溃
+- **状态同步**：所有数据变更立即写入 localStorage，刷新页面后状态完全恢复
+
+**应用场景**：实现了完整的用户注册、登录状态保持、动态发布、评论互动等功能，所有数据在浏览器中持久保存，展示了前端数据管理的最佳实践。
+
+---
+
+### 亮点四：CSS3 高级特性综合应用
+
+项目充分利用 **CSS3 现代特性**，实现了毛玻璃效果（Glassmorphism）、CSS 变量主题系统、响应式布局等高级视觉效果。
+
+**技术实现细节：**
+
+1. **毛玻璃效果（Glassmorphism）**：
+   - 使用 `backdrop-filter: blur(30px) saturate(180%)` 实现背景模糊和饱和度提升
+   - 配合半透明背景 `rgba(255, 255, 255, 0.35)` 和边框 `rgba(255, 255, 255, 0.4)` 创造层次感
+   - 通过 JavaScript 动态切换 `no-glass-effect` 类，支持用户自定义开关
+
+2. **CSS 变量（Custom Properties）系统**：
+   - 在 `:root` 中定义全局变量：颜色、字体、间距、圆角、阴影等
+   - 夜间模式通过 `body[data-theme='dark']` 覆盖变量值，实现一键主题切换
+   - 所有组件使用 `var(--color-primary)` 等变量，确保风格统一且易于维护
+
+3. **响应式布局系统**：
+   - **CSS Grid**：首页 Bento Grid、个人相册瀑布流使用 `grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))` 自适应列数
+   - **Flexbox**：导航栏、卡片内容、表单布局使用 Flexbox 实现灵活对齐
+   - **媒体查询**：通过 `@media (max-width: 960px)` 和 `@media (max-width: 720px)` 实现移动端适配，隐藏侧边栏、调整字体大小、改变布局方向
+
+4. **CSS 动画与过渡**：
+   - 使用 `@keyframes` 实现跑马灯滚动、卡片淡入上浮、骨架屏加载等动画
+   - 所有交互元素使用 `transition` 实现平滑过渡，提升用户体验
+   - 结合 `transform` 和 `opacity` 实现高性能动画（利用 GPU 加速）
+
+5. **高级选择器应用**：
+   - 使用属性选择器 `[data-theme='dark']`、`[data-page='index']` 实现条件样式
+   - 使用伪类选择器 `:hover`、`:focus`、`:active` 增强交互反馈
+   - 使用伪元素 `::before`、`::after` 创建装饰效果和背景层
+
+**视觉呈现**：
+- 导航栏、卡片、侧边栏均采用毛玻璃效果，营造现代科技感
+- 日间/夜间模式一键切换，所有颜色、阴影自动适配
+- 完美适配桌面端、平板和手机，布局自动调整
+
+**技术价值**：展示了 CSS3 作为现代 Web 标准的核心能力，通过纯 CSS 实现了传统需要大量 JavaScript 才能完成的视觉效果，体现了"渐进增强"的设计理念。

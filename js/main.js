@@ -1183,7 +1183,7 @@
     // =========== [新增代码结束] ===========
     
 
-        // 3. 绑定底部操作栏事件 (使用事件委托)
+    // 3. 绑定底部操作栏事件 (使用事件委托)
     // 同时也处理头部(detailHeader)的编辑/删除按钮，统一在 detail-right 上委托
     var detailRight = qs('.detail-right');
     if (detailRight) {
